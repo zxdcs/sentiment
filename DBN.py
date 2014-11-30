@@ -163,8 +163,11 @@ class DBN(object):
             # get the cost and the updates list
             # using CD-k here (persisent=None) for training each RBM.
             # TODO: change cost function to reconstruction error
+
+            persistent_chain = theano.shared(numpy.zeros((batch_size, rbm.n_hidden), dtype=theano.config.floatX),
+                                             borrow=True)
             cost, updates = rbm.get_cost_updates(learning_rate,
-                                                 persistent=None, k=k)
+                                                 persistent=persistent_chain, k=k)
 
             # compile the theano function
             fn = theano.function(
@@ -261,15 +264,15 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     valid_set_x, valid_set_y = datasets[1]
 
     # compute number of minibatches for training
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size + 1
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
     n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size + 1
 
     # numpy random generator
     numpy_rng = numpy.random.RandomState(123)
     print '... building the model'
     # construct the Deep Belief Network
-    dim = train_set_x.get_value(borrow=True).shape[1]
-    dbn = DBN(numpy_rng=numpy_rng, n_ins=dim, hidden_layers_sizes=[1000, 1000, 1000], n_outs=2)
+    dim = int(train_set_x.get_value(borrow=True).shape[1])
+    dbn = DBN(numpy_rng=numpy_rng, n_ins=dim, hidden_layers_sizes=[2000, 1000, 500], n_outs=2)
 
     # start-snippet-2
     #########################
@@ -291,8 +294,7 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
             for batch_index in xrange(n_train_batches):
                 c.append(pretraining_fns[i](index=batch_index,
                                             lr=pretrain_lr))
-            print 'Pre-training layer %i, epoch %d, cost ' % (i, epoch),
-            print numpy.mean(c)
+            print('Pre-training layer {0:d}, epoch {1:d}, cost {2:f}'.format(i, epoch, numpy.mean(c)))
 
     end_time = time.clock()
     # end-snippet-2
@@ -326,8 +328,8 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
         y_preds = [validate_model(i) for i in xrange(n_valid_batches)]
         y_pred = [pij for pi in y_preds for pij in pi]
         y_real = valid_set_y.get_value(borrow=True)
-        fscore = f_score(y_real, y_pred)
-        print('epoch {0:d}, fscore {1:f} %'.format(epoch, fscore * 100.))
+        fscore, precison, recall = f_score(y_real, y_pred)
+        print('epoch {0:d}, fscore {1:f}  precision {2:f}  recall {3:f}'.format(epoch, fscore, precison, recall))
 
         # if we got the best validation score until now
         if fscore > best_fscore:
@@ -344,6 +346,7 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
 
 
 def f_score(y_real, y_pred, target=1, label_num=2):
+    print(y_pred)
     if len(y_real) != len(y_pred):
         raise TypeError(
             'y_real should have the same shape as y_pred',
@@ -355,8 +358,9 @@ def f_score(y_real, y_pred, target=1, label_num=2):
     precison = count[target][target] / numpy.sum(count, axis=0)[target]
     recall = count[target][target] / numpy.sum(count, axis=1)[target]
     fscore = 2 * precison * recall / (precison + recall)
-    return fscore
+    return fscore, precison, recall
 
 
 if __name__ == '__main__':
-    test_DBN(r'D:\workspace\sentiment\data_balanced\lexical.txt')
+    test_DBN(r'D:\workspace\sentiment\data_balanced\lexical.txt', pretraining_epochs=50, training_epochs=100,
+             batch_size=20)
