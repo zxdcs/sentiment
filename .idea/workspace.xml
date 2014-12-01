@@ -60,25 +60,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="grbm.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/grbm.py">
+      <file leaf-file-name="rbm.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/rbm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="8122" max-vertical-offset="11523">
-              <caret line="363" column="7" selection-start-line="363" selection-start-column="7" selection-end-line="363" selection-end-column="7" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="10599" max-vertical-offset="11224">
+              <caret line="461" column="5" selection-start-line="461" selection-start-column="5" selection-end-line="461" selection-end-column="5" />
               <folding>
-                <element signature="e#72#83#0" expanded="true" />
+                <element signature="e#62#73#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="rbm.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/rbm.py">
+      <file leaf-file-name="grbm.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/grbm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-3.4862638" vertical-offset="10860" max-vertical-offset="11224">
-              <caret line="417" column="22" selection-start-line="417" selection-start-column="22" selection-end-line="417" selection-end-column="22" />
+            <state vertical-scroll-proportion="26.21229" vertical-offset="0" max-vertical-offset="11523">
+              <caret line="408" column="58" selection-start-line="408" selection-start-column="58" selection-end-line="408" selection-end-column="58" />
               <folding>
-                <element signature="e#62#73#0" expanded="true" />
+                <element signature="e#72#83#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -91,10 +91,10 @@
       <list>
         <option value="$PROJECT_DIR$/logistic_sgd2.py" />
         <option value="$PROJECT_DIR$/mlp.py" />
-        <option value="$PROJECT_DIR$/grbm.py" />
         <option value="$PROJECT_DIR$/DBN.py" />
         <option value="$PROJECT_DIR$/logistic_sgd.py" />
         <option value="$PROJECT_DIR$/rbm.py" />
+        <option value="$PROJECT_DIR$/grbm.py" />
       </list>
     </option>
   </component>
@@ -143,7 +143,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -164,6 +163,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -184,26 +184,7 @@
       <recent name="D:\PycharmProjects\sentiment" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.rbm">
-    <configuration default="false" name="grbm" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="sentiment" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grbm.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PythonRunner" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="Python.grbm">
     <configuration default="false" name="logistic_sgd2" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -425,6 +406,25 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
+    <configuration default="false" name="grbm" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="sentiment" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grbm.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
     <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Python.logistic_sgd" />
       <item index="1" class="java.lang.String" itemvalue="Python.rbm" />
@@ -434,10 +434,9 @@
       <item index="5" class="java.lang.String" itemvalue="Python.mlp" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python.grbm" />
-        <item index="1" class="java.lang.String" itemvalue="Python.mlp" />
-        <item index="2" class="java.lang.String" itemvalue="Python.logistic_sgd2" />
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="Python.mlp" />
+        <item index="1" class="java.lang.String" itemvalue="Python.logistic_sgd2" />
       </list>
     </recent_temporary>
   </component>
@@ -485,7 +484,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32874617" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4502297" sideWeight="0.49966866" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.38744256" sideWeight="0.49966866" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20109977" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32874617" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -514,6 +513,7 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
+    <option name="SHOW_VCS_ERROR_NOTIFICATIONS" value="false" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -533,6 +533,56 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/logistic_sgd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="8157" max-vertical-offset="8487">
+          <caret line="363" column="0" selection-start-line="363" selection-start-column="0" selection-end-line="363" selection-end-column="0" />
+          <folding>
+            <element signature="e#130#139#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mlp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="6729" max-vertical-offset="7705">
+          <caret line="204" column="76" selection-start-line="204" selection-start-column="76" selection-end-line="204" selection-end-column="76" />
+          <folding>
+            <element signature="e#85#94#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DBN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="5949" max-vertical-offset="8556">
+          <caret line="361" column="0" selection-start-line="361" selection-start-column="0" selection-end-line="361" selection-end-column="0" />
+          <folding>
+            <element signature="e#23#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/grbm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="8122" max-vertical-offset="11523">
+          <caret line="363" column="7" selection-start-line="363" selection-start-column="7" selection-end-line="363" selection-end-column="7" />
+          <folding>
+            <element signature="e#72#83#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/rbm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="11224">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#62#73#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/logistic_sgd.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3550" max-vertical-offset="7475">
@@ -897,22 +947,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/grbm.py">
+    <entry file="file://$PROJECT_DIR$/rbm.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="8122" max-vertical-offset="11523">
-          <caret line="363" column="7" selection-start-line="363" selection-start-column="7" selection-end-line="363" selection-end-column="7" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="10599" max-vertical-offset="11224">
+          <caret line="461" column="5" selection-start-line="461" selection-start-column="5" selection-end-line="461" selection-end-column="5" />
           <folding>
-            <element signature="e#72#83#0" expanded="true" />
+            <element signature="e#62#73#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/rbm.py">
+    <entry file="file://C:/Anaconda/Lib/site-packages/numpy/core/_methods.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-3.4862638" vertical-offset="10860" max-vertical-offset="11224">
-          <caret line="417" column="22" selection-start-line="417" selection-start-column="22" selection-end-line="417" selection-end-column="22" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1211" max-vertical-offset="3059">
+          <caret line="65" column="0" selection-start-line="65" selection-start-column="0" selection-end-line="65" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/grbm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="26.21229" vertical-offset="0" max-vertical-offset="11523">
+          <caret line="408" column="58" selection-start-line="408" selection-start-column="58" selection-end-line="408" selection-end-column="58" />
           <folding>
-            <element signature="e#62#73#0" expanded="true" />
+            <element signature="e#72#83#0" expanded="true" />
           </folding>
         </state>
       </provider>
