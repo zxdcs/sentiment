@@ -272,7 +272,7 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     print '... building the model'
     # construct the Deep Belief Network
     dim = int(train_set_x.get_value(borrow=True).shape[1])
-    dbn = DBN(numpy_rng=numpy_rng, n_ins=dim, hidden_layers_sizes=[2000, 1000, 500], n_outs=2)
+    dbn = DBN(numpy_rng=numpy_rng, n_ins=dim, hidden_layers_sizes=[75, 50, 25], n_outs=2)
 
     # start-snippet-2
     #########################
@@ -362,5 +362,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_DBN(r'D:\workspace\sentiment\data_balanced\lexical.txt', pretraining_epochs=50, training_epochs=100,
-             batch_size=20)
+    test_DBN(r'D:\workspace\sentiment\data_balanced\filtered.txt', pretraining_epochs=10, training_epochs=100,
+             batch_size=20, k=1)
