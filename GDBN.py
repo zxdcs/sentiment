@@ -13,9 +13,10 @@ from theano.tensor.shared_randomstreams import RandomStreams
 from logistic_sgd import LogisticRegression, load_data
 from mlp import HiddenLayer
 from rbm import RBM
+from grbm import GRBM
 
 
-class DBN(object):
+class GDBN(object):
     """Deep Belief Network
 
     A deep belief network is obtained by stacking several RBMs on top of each
@@ -110,13 +111,22 @@ class DBN(object):
             self.params.extend(sigmoid_layer.params)
 
             # Construct an RBM that shared weights with this layer
-            rbm_layer = RBM(numpy_rng=numpy_rng,
-                            theano_rng=theano_rng,
-                            input=layer_input,
-                            n_visible=input_size,
-                            n_hidden=hidden_layers_sizes[i],
-                            W=sigmoid_layer.W,
-                            hbias=sigmoid_layer.b)
+            if i == 0:
+                rbm_layer = GRBM(numpy_rng=numpy_rng,
+                                 theano_rng=theano_rng,
+                                 input=layer_input,
+                                 n_visible=input_size,
+                                 n_hidden=hidden_layers_sizes[i],
+                                 W=sigmoid_layer.W,
+                                 hbias=sigmoid_layer.b)
+            else:
+                rbm_layer = RBM(numpy_rng=numpy_rng,
+                                theano_rng=theano_rng,
+                                input=layer_input,
+                                n_visible=input_size,
+                                n_hidden=hidden_layers_sizes[i],
+                                W=sigmoid_layer.W,
+                                hbias=sigmoid_layer.b)
             self.rbm_layers.append(rbm_layer)
 
         # We now need to add a logistic layer on top of the MLP
@@ -270,7 +280,7 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     print '... building the model'
     # construct the Deep Belief Network
     dim = int(train_set_x.get_value(borrow=True).shape[1])
-    dbn = DBN(numpy_rng=numpy_rng, n_ins=dim, hidden_layers_sizes=[75, 50, 25], n_outs=2)
+    dbn = GDBN(numpy_rng=numpy_rng, n_ins=dim, hidden_layers_sizes=[750, 500, 250], n_outs=2)
 
     # start-snippet-2
     #########################
@@ -360,5 +370,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_DBN(r'D:\workspace\sentiment\data_balanced\filtered.txt', pretraining_epochs=10, training_epochs=100,
+    test_DBN(r'D:\workspace\sentiment\data_balanced\acoustic.txt', pretraining_epochs=10, training_epochs=100,
              batch_size=20, k=1)
