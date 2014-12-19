@@ -135,8 +135,8 @@ def load_data(dataset):
     # train_idx = int(0.9 * n)
     # train_set = (x[:train_idx], y[:train_idx])
     # valid_set = (x[train_idx:], y[train_idx:])
-    st = int(0.8 * n)
-    end = int(0.9 * n)
+    st = int(0.9 * n)
+    end = int(1 * n)
     train_set = (numpy.append(x[:st], x[end:], axis=0), numpy.append(y[:st], y[end:], axis=0))
     valid_set = (x[st:end], y[st:end])
 

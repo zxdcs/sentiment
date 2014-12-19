@@ -289,7 +289,7 @@ def test_SdA(dataset, finetune_lr=0.1, pretraining_epochs=15,
     sda = SdA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[2000, 1000, 500],
+        hidden_layers_sizes=[2000, 2000, 2000],
         n_outs=2
     )
     #########################
@@ -301,7 +301,7 @@ def test_SdA(dataset, finetune_lr=0.1, pretraining_epochs=15,
     print '... pre-training the model'
     start_time = time.clock()
     # Pre-train layer-wise
-    corruption_levels = [.1, .2, .3]
+    corruption_levels = [.5, .5, .5]
     for i in xrange(sda.n_layers):
         # go through pretraining epochs
         for epoch in xrange(pretraining_epochs):
@@ -380,5 +380,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_SdA(r'D:\workspace\sentiment\data_balanced\lexical.txt', pretraining_epochs=10, training_epochs=100,
-             batch_size=20)
+    test_SdA(r'D:\workspace\sentiment\data_balanced\acoustic.txt', pretraining_epochs=10, training_epochs=150,
+             batch_size=10)
