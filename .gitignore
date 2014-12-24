@@ -42,11 +42,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-<<<<<<< HEAD
-#pycharm
+
+# pycharm
 .idea
 __pycache__
-=======
-#pytharm
-.idea
->>>>>>> origin/master
