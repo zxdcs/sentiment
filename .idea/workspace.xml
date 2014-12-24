@@ -87,7 +87,7 @@
       <file leaf-file-name="SdA.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SdA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2628205" vertical-offset="8323" max-vertical-offset="8970">
+            <state vertical-scroll-proportion="0.2624" vertical-offset="8323" max-vertical-offset="8970">
               <caret line="369" column="51" selection-start-line="369" selection-start-column="51" selection-end-line="369" selection-end-column="51" />
               <folding>
                 <element signature="e#64#73#0" expanded="true" />
@@ -158,6 +158,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -178,7 +179,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -552,10 +552,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1311" height="784" extended-state="7" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20109977" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20109977" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32874617" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3767228" sideWeight="0.50033134" order="12" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -1117,7 +1117,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SdA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2628205" vertical-offset="8323" max-vertical-offset="8970">
+        <state vertical-scroll-proportion="0.2624" vertical-offset="8323" max-vertical-offset="8970">
           <caret line="369" column="51" selection-start-line="369" selection-start-column="51" selection-end-line="369" selection-end-column="51" />
           <folding>
             <element signature="e#64#73#0" expanded="true" />
