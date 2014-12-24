@@ -74,7 +74,7 @@ class DBN(object):
         # training the DBN by doing stochastic gradient descent on the
         # MLP.
 
-        for i in xrange(self.n_layers):
+        for i in range(self.n_layers):
             # construct the sigmoidal layer
 
             # the size of the input is either the number of hidden
@@ -262,12 +262,12 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     valid_set_x, valid_set_y = datasets[1]
 
     # compute number of minibatches for training
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
-    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size + 1
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
+    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size + 1
 
     # numpy random generator
     numpy_rng = numpy.random.RandomState(123)
-    print '... building the model'
+    print('... building the model')
     # construct the Deep Belief Network
     dim = int(train_set_x.get_value(borrow=True).shape[1])
     dbn = DBN(numpy_rng=numpy_rng, n_ins=dim, hidden_layers_sizes=[75, 50, 25], n_outs=2)
@@ -276,20 +276,20 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     #########################
     # PRETRAINING THE MODEL #
     #########################
-    print '... getting the pretraining functions'
+    print('... getting the pretraining functions')
     pretraining_fns = dbn.pretraining_functions(train_set_x=train_set_x,
                                                 batch_size=batch_size,
                                                 k=k)
 
-    print '... pre-training the model'
+    print('... pre-training the model')
     start_time = time.clock()
     # Pre-train layer-wise
-    for i in xrange(dbn.n_layers):
+    for i in range(dbn.n_layers):
         # go through pretraining epochs
-        for epoch in xrange(pretraining_epochs):
+        for epoch in range(pretraining_epochs):
             # go through the training set
             c = []
-            for batch_index in xrange(n_train_batches):
+            for batch_index in range(n_train_batches):
                 c.append(pretraining_fns[i](index=batch_index,
                                             lr=pretrain_lr))
             print('Pre-training layer {0:d}, epoch {1:d}, cost {2:f}'.format(i, epoch, numpy.mean(c)))
@@ -304,14 +304,14 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     ########################
 
     # get the training, validation and testing function for the model
-    print '... getting the finetuning functions'
+    print('... getting the finetuning functions')
     train_fn, validate_model = dbn.build_finetune_functions(
         datasets=datasets,
         batch_size=batch_size,
         learning_rate=finetune_lr
     )
 
-    print '... finetuning the model'
+    print('... finetuning the model')
 
     best_fscore = 0
     start_time = time.clock()
@@ -319,11 +319,11 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     epoch = 0
     while epoch < training_epochs:
         epoch += 1
-        for minibatch_index in xrange(n_train_batches):
+        for minibatch_index in range(n_train_batches):
             minibatch_avg_cost = train_fn(minibatch_index)
 
         # compute f-score on validation set
-        y_preds = [validate_model(i) for i in xrange(n_valid_batches)]
+        y_preds = [validate_model(i) for i in range(n_valid_batches)]
         y_pred = [pij for pi in y_preds for pij in pi]
         y_real = valid_set_y.get_value(borrow=True)
         fscore, precison, recall = f_score(y_real, y_pred)

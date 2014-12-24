@@ -201,13 +201,13 @@ def test_mlp(dataset, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1
     valid_set_x, valid_set_y = datasets[1]
 
     # compute number of minibatches for training, validation
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size + 1
-    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size + 1
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size + 1
+    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size + 1
 
     ######################
     # BUILD ACTUAL MODEL #
     ######################
-    print '... building the model'
+    print('... building the model')
 
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
@@ -279,7 +279,7 @@ def test_mlp(dataset, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1
     ###############
     # TRAIN MODEL #
     ###############
-    print '... training'
+    print('... training')
 
     best_fscore = 0
     start_time = time.clock()
@@ -287,11 +287,11 @@ def test_mlp(dataset, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1
     epoch = 0
     while epoch < n_epochs:
         epoch += 1
-        for minibatch_index in xrange(n_train_batches):
+        for minibatch_index in range(n_train_batches):
             minibatch_avg_cost = train_model(minibatch_index)
 
         # compute f-score on validation set
-        y_preds = [validate_model(i) for i in xrange(n_valid_batches)]
+        y_preds = [validate_model(i) for i in range(n_valid_batches)]
         y_pred = [pij for pi in y_preds for pij in pi]
         y_real = valid_set_y.get_value(borrow=True)
         fscore = f_score(y_real, y_pred)

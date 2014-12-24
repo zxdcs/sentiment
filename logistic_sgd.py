@@ -8,7 +8,7 @@ import os
 import sys
 import time
 import gzip
-import cPickle
+import pickle
 
 import numpy
 import theano
@@ -115,7 +115,7 @@ def load_data(dataset):
     """
 
     # Load the dataset
-    print '... loading data'
+    print('... loading data')
     f = open(dataset, 'r')
     dim = float(f.readline().split(' ')[1])
 
@@ -177,11 +177,11 @@ def load_data_mnist(dataset):
     :param dataset: the path to the dataset (here MNIST)
     """
 
-    print '... loading data'
+    print('... loading data')
 
     # Load the dataset
     f = gzip.open(dataset, 'rb')
-    train_set, valid_set, test_set = cPickle.load(f)
+    train_set, valid_set, test_set = pickle.load(f)
     f.close()
 
     def shared_dataset(data_xy, borrow=True):
@@ -235,13 +235,13 @@ def sgd_optimization(dataset, learning_rate=0.13, n_epochs=1000, batch_size=30):
     valid_set_x, valid_set_y = datasets[1]
 
     # compute number of minibatches for training, validation
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size + 1
-    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size + 1
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size + 1
+    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size + 1
 
     ######################
     # BUILD ACTUAL MODEL #
     ######################
-    print '... building the model'
+    print('... building the model')
 
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
@@ -296,7 +296,7 @@ def sgd_optimization(dataset, learning_rate=0.13, n_epochs=1000, batch_size=30):
     ###############
     # TRAIN MODEL #
     ###############
-    print '... training the model'
+    print('... training the model')
 
     best_fscore = 0
     start_time = time.clock()
@@ -304,11 +304,11 @@ def sgd_optimization(dataset, learning_rate=0.13, n_epochs=1000, batch_size=30):
     epoch = 0
     while epoch < n_epochs:
         epoch += 1
-        for minibatch_index in xrange(n_train_batches):
+        for minibatch_index in range(n_train_batches):
             minibatch_avg_cost = train_model(minibatch_index)
 
         # compute f-score on validation set
-        y_preds = [validate_model(i) for i in xrange(n_valid_batches)]
+        y_preds = [validate_model(i) for i in range(n_valid_batches)]
         y_pred = [pij for pi in y_preds for pij in pi]
         y_real = valid_set_y.get_value(borrow=True)
         fscore = f_score(y_real, y_pred)

@@ -368,7 +368,7 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
     test_set_x, test_set_y = datasets[1]
 
     # compute number of minibatches for training, validation and testing
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size + 1
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size + 1
 
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
@@ -412,19 +412,19 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
     start_time = time.clock()
 
     # go through training epochs
-    for epoch in xrange(training_epochs):
+    for epoch in range(training_epochs):
 
         # go through the training set
         mean_cost = []
-        for batch_index in xrange(n_train_batches):
+        for batch_index in range(n_train_batches):
             mean_cost += [train_rbm(batch_index)[1]]
-            print 'batch %d complete' % batch_index
+            print('batch %d complete' % batch_index)
 
         # print 'Training epoch %d, cost is ' % epoch, numpy.mean(mean_cost)
-        print 'Training epoch %d, sample is ' % epoch, mean_cost[-1]
+        print('Training epoch %d, sample is ' % epoch, mean_cost[-1])
     end_time = time.clock()
     pretraining_time = end_time - start_time
-    print ('Training took %f minutes' % (pretraining_time / 60.))
+    print('Training took %f minutes' % (pretraining_time / 60.))
     # end-snippet-5 start-snippet-6
     #################################
     # Sampling from the RBM     #
@@ -471,7 +471,7 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
         [], [vis_mfs[-1], vis_samples[-1]], updates=updates, name='sample_fn'
     )
 
-    for idx in xrange(n_samples):
+    for idx in range(n_samples):
         # generate `plot_every` intermediate samples that we discard,
         # because successive samples in the chain are too correlated
         vis_mf, vis_sample = sample_fn()
