@@ -11,8 +11,8 @@ import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
 from dnn.logistic_sgd import LogisticRegression, load_data
-from mlp import HiddenLayer
-from dA import dA
+from dnn.mlp import HiddenLayer
+from dnn.dA import dA
 
 
 class SdA(object):
