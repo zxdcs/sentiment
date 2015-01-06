@@ -1,5 +1,5 @@
 """
-The Gaussian restricted boltzmann machines (GRBM) using Theano.
+The restricted boltzmann machines (RBM) using Theano.
 """
 import time
 
@@ -8,17 +8,23 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from logistic_sgd import load_data
-
-L1 = 0.00  # L1 regularization param (set to 0 for no L1 regularization)
+from dnn.logistic_sgd import load_data
 
 
-class GRBM(object):
-    """ Gaussian Restricted Boltzmann Machine (RBM) """
+class RBM(object):
+    """Restricted Boltzmann Machine (RBM)"""
 
-    def __init__(self, input=None, n_visible=784, n_hidden=500,
-                 W=None, hbias=None, vbias=None, numpy_rng=None,
-                 theano_rng=None):
+    def __init__(
+            self,
+            input=None,
+            n_visible=784,
+            n_hidden=500,
+            W=None,
+            hbias=None,
+            vbias=None,
+            numpy_rng=None,
+            theano_rng=None
+    ):
         """
         RBM constructor. Defines the parameters of the model along with
         basic operations for inferring hidden from visible (and vice-versa),
@@ -104,20 +110,14 @@ class GRBM(object):
         # **** WARNING: It is not a good idea to put things in this list
         # other than shared variables created in this function.
         self.params = [self.W, self.hbias, self.vbias]
+        # end-snippet-1
 
     def free_energy(self, v_sample):
-        """ Function to compute the free energy (XAVI: modified for GRBM)"""
-        # version from the web
-        # wx_b = T.dot(v_sample, self.W) + self.hbias
-        # squared_term_temp = ((v_sample - self.vbias) ** 2.) / (2.)
-        # hidden_term = T.sum(T.log(1 + T.exp(wx_b)), axis=1)
-        # squared_term = T.sum(squared_term_temp,axis=1)
-        # return squared_term-hidden_term
-
-        # version from Florian Metze
-        sq_term = 0.5 * T.sqr(v_sample - self.vbias).sum(axis=1)
-        softplus_term = T.nnet.softplus((T.dot(v_sample, self.W) + self.hbias)).sum(axis=1)
-        return sq_term - softplus_term
+        """ Function to compute the free energy """
+        wx_b = T.dot(v_sample, self.W) + self.hbias
+        vbias_term = T.dot(v_sample, self.vbias)
+        hidden_term = T.sum(T.log(1 + T.exp(wx_b)), axis=1)
+        return -hidden_term - vbias_term
 
     def propup(self, vis):
         """This function propagates the visible units activation upwards to
@@ -132,7 +132,6 @@ class GRBM(object):
         """
         pre_sigmoid_activation = T.dot(vis, self.W) + self.hbias
         return [pre_sigmoid_activation, T.nnet.sigmoid(pre_sigmoid_activation)]
-        # return [pre_sigmoid_activation, T.nnet.ultra_fast_sigmoid(pre_sigmoid_activation)]
 
     def sample_h_given_v(self, v0_sample):
         """ This function infers state of hidden units given visible units """
@@ -161,27 +160,26 @@ class GRBM(object):
         """
         pre_sigmoid_activation = T.dot(hid, self.W.T) + self.vbias
         return [pre_sigmoid_activation, T.nnet.sigmoid(pre_sigmoid_activation)]
-        # return [pre_sigmoid_activation, T.nnet.ultra_fast_sigmoid(pre_sigmoid_activation)]
 
     def sample_v_given_h(self, h0_sample):
-        """ This function infers state of visible units given hidden units
-        (XAVI modified for GRBM)"""
+        """ This function infers state of visible units given hidden units """
         # compute the activation of the visible given the hidden sample
         pre_sigmoid_v1, v1_mean = self.propdown(h0_sample)
         # get a sample of the visible given their activation
         # Note that theano_rng.binomial returns a symbolic sample of dtype
         # int64 by default. If we want to keep our computations in floatX
         # for the GPU we need to specify to return the dtype floatX
-        # v1_sample = self.theano_rng.binomial(size=v1_mean.shape, n=1, p=v1_mean, dtype=theano.config.floatX) TODO
-        # v1_sample = self.theano_rng.normal(size=v1_mean.shape, avg=v1_mean, dtype=theano.config.floatX) TODO
-        # return [pre_sigmoid_v1, v1_mean, v1_sample] TODO
-        return [pre_sigmoid_v1, v1_mean, pre_sigmoid_v1]
+        v1_sample = self.theano_rng.binomial(size=v1_mean.shape,
+                                             n=1, p=v1_mean,
+                                             dtype=theano.config.floatX)
+        return [pre_sigmoid_v1, v1_mean, v1_sample]
 
     def gibbs_hvh(self, h0_sample):
         """ This function implements one step of Gibbs sampling,
             starting from the hidden state"""
         pre_sigmoid_v1, v1_mean, v1_sample = self.sample_v_given_h(h0_sample)
         pre_sigmoid_h1, h1_mean, h1_sample = self.sample_h_given_v(v1_sample)
+        self.hsample = h1_sample
         return [pre_sigmoid_v1, v1_mean, v1_sample,
                 pre_sigmoid_h1, h1_mean, h1_sample]
 
@@ -193,6 +191,7 @@ class GRBM(object):
         return [pre_sigmoid_h1, h1_mean, h1_sample,
                 pre_sigmoid_v1, v1_mean, v1_sample]
 
+    # start-snippet-2
     def get_cost_updates(self, lr=0.1, persistent=None, k=1):
         """This functions implements one step of CD-k or PCD-k
 
@@ -209,7 +208,6 @@ class GRBM(object):
         also an update of the shared variable used to store the persistent
         chain, if one is used.
 
-        modified to return the square error cost
         """
 
         # compute positive phase
@@ -222,7 +220,7 @@ class GRBM(object):
             chain_start = ph_sample
         else:
             chain_start = persistent
-
+        # end-snippet-2
         # perform actual negative phase
         # in order to implement CD-k/PCD-k we need to scan over the
         # function that implements one gibbs step k times.
@@ -247,22 +245,16 @@ class GRBM(object):
             outputs_info=[None, None, None, None, None, chain_start],
             n_steps=k
         )
-
+        # start-snippet-3
         # determine gradients on RBM parameters
-        # not that we only need the sample at the end of the chain
+        # note that we only need the sample at the end of the chain
         chain_end = nv_samples[-1]
 
-        # regularization
-        # L1_cost = L1 * 1./self.W.shape[0] * T.sum(abs(self.W)) # TODO biases ?
-        # TODO see http://webia.lip6.fr/~cord/Publications_files/ECCV2012cord.pdf
-        # and http://arxiv.org/pdf/1008.4988.pdf
-        # L2_sqr = T.sum(param ** 2)
         cost = T.mean(self.free_energy(self.input)) - T.mean(
-            self.free_energy(chain_end))  # + L1_cost
-
+            self.free_energy(chain_end))
         # We must not compute the gradient through the gibbs sampling
         gparams = T.grad(cost, self.params, consider_constant=[chain_end])
-
+        # end-snippet-3 start-snippet-4
         # constructs the update dictionary
         for gparam, param in zip(gparams, self.params):
             # make sure that the learning rate is of the right dtype
@@ -276,11 +268,11 @@ class GRBM(object):
             monitoring_cost = self.get_pseudo_likelihood_cost(updates)
         else:
             # reconstruction cross-entropy is a better proxy for CD
-            # return the square error instead of the cross-entropy
-            monitoring_cost = self.get_reconstruction_cost(updates, pre_sigmoid_nvs[-1])
-            # monitoring_cost = self.get_reconstruction_cost_MSE(updates, pre_sigmoid_nvs[-1])
+            monitoring_cost = self.get_reconstruction_cost(updates,
+                                                           pre_sigmoid_nvs[-1])
 
         return monitoring_cost, updates
+        # end-snippet-4
 
     def get_pseudo_likelihood_cost(self, updates):
         """Stochastic approximation to the pseudo-likelihood"""
@@ -303,7 +295,6 @@ class GRBM(object):
         fe_xi_flip = self.free_energy(xi_flip)
 
         # equivalent to e^(-FE(x_i)) / (e^(-FE(x_i)) + e^(-FE(x_{\i})))
-        # cost = T.mean(self.n_visible * T.log(T.nnet.ultra_fast_sigmoid(fe_xi_flip -
         cost = T.mean(self.n_visible * T.log(T.nnet.sigmoid(fe_xi_flip -
                                                             fe_xi)))
 
@@ -311,13 +302,6 @@ class GRBM(object):
         updates[bit_i_idx] = (bit_i_idx + 1) % self.n_visible
 
         return cost
-
-    # This returns the mean square error
-    # TODO: I am not confident this is correct, as I should compare the input with the input estimation using the model
-    def get_reconstruction_cost_MSE(self, updates, pre_sigmoid_nv):
-        mse = T.sum(T.sqr(self.input - T.log(T.nnet.sigmoid(pre_sigmoid_nv))), axis=1)
-        # mse = T.sum(T.sqr(self.input - T.log(T.nnet.ultra_fast_sigmoid(pre_sigmoid_nv))), axis=1)
-        return mse
 
     def get_reconstruction_cost(self, updates, pre_sigmoid_nv):
         """Approximation to the reconstruction error
@@ -350,11 +334,12 @@ class GRBM(object):
         """
 
         cross_entropy = T.mean(
-            T.sum(self.input * T.log(T.nnet.sigmoid(pre_sigmoid_nv)) +
-                  # T.sum(self.input * T.log(T.nnet.ultra_fast_sigmoid(pre_sigmoid_nv)) +
-                  (1 - self.input) * T.log(1 - T.nnet.sigmoid(pre_sigmoid_nv)),
-                  # (1 - self.input) * T.log(1 - T.nnet.ultra_fast_sigmoid(pre_sigmoid_nv)),
-                  axis=1))
+            T.sum(
+                self.input * T.log(T.nnet.sigmoid(pre_sigmoid_nv)) +
+                (1 - self.input) * T.log(1 - T.nnet.sigmoid(pre_sigmoid_nv)),
+                axis=1
+            )
+        )
 
         return cross_entropy
 
@@ -363,8 +348,6 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
              n_chains=20, n_samples=10, n_hidden=500):
     """
     Demonstrate how to train and afterwards sample from it using Theano.
-
-    This is demonstrated on MNIST.
 
     :param learning_rate: learning rate used for training the RBM
 
@@ -402,10 +385,10 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
 
     # construct the RBM class
     dim = int(train_set_x.get_value(borrow=True).shape[1])
-    rbm = GRBM(input=x, n_visible=dim,
-               n_hidden=n_hidden, numpy_rng=rng, theano_rng=theano_rng)
+    rbm = RBM(input=x, n_visible=dim,
+              n_hidden=n_hidden, numpy_rng=rng, theano_rng=theano_rng)
 
-    # get the cost and the gradient corresponding to one step of CD-15
+    # get the cost and the gradient corresponding to one step of CD-1
     cost, updates = rbm.get_cost_updates(lr=learning_rate,
                                          persistent=persistent_chain, k=1)
 
@@ -413,11 +396,12 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
     # Training the RBM          #
     #################################
 
+    # start-snippet-5
     # it is ok for a theano function to have no output
     # the purpose of train_rbm is solely to update the RBM parameters
     train_rbm = theano.function(
         [index],
-        cost,
+        [cost, rbm.hsample],
         updates=updates,
         givens={
             x: train_set_x[index * batch_size: (index + 1) * batch_size]
@@ -433,15 +417,15 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
         # go through the training set
         mean_cost = []
         for batch_index in range(n_train_batches):
-            mean_cost += [train_rbm(batch_index)]
+            mean_cost += [train_rbm(batch_index)[1]]
             print('batch %d complete' % batch_index)
 
-        print('Training epoch %d, cost is ' % epoch, numpy.mean(mean_cost))
-
+        # print 'Training epoch %d, cost is ' % epoch, numpy.mean(mean_cost)
+        print('Training epoch %d, sample is ' % epoch, mean_cost[-1])
     end_time = time.clock()
     pretraining_time = end_time - start_time
     print('Training took %f minutes' % (pretraining_time / 60.))
-
+    # end-snippet-5 start-snippet-6
     #################################
     # Sampling from the RBM     #
     #################################
@@ -450,10 +434,13 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
 
     # pick random test examples, with which to initialize the persistent chain
     test_idx = rng.randint(number_of_test_samples - n_chains)
-    persistent_vis_chain = theano.shared(numpy.asarray(
-        test_set_x.get_value(borrow=True)[test_idx:test_idx + n_chains],
-        dtype=theano.config.floatX))
-
+    persistent_vis_chain = theano.shared(
+        numpy.asarray(
+            test_set_x.get_value(borrow=True)[test_idx:test_idx + n_chains],
+            dtype=theano.config.floatX
+        )
+    )
+    # end-snippet-6 start-snippet-7
     plot_every = 1000
     # define one step of Gibbs sampling (mf = mean-field) define a
     # function that does `plot_every` steps before returning the
@@ -492,4 +479,4 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
 
 
 if __name__ == '__main__':
-    test_rbm(r'D:\workspace\sentiment\data_balanced\acoustic.txt')
+    test_rbm(r'D:\workspace\sentiment\data_balanced\lexical.txt', n_hidden=500)

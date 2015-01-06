@@ -13,7 +13,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 from logistic_sgd import LogisticRegression, load_data
 from mlp import HiddenLayer
 from rbm import RBM
-from grbm import GRBM
+from dnn.grbm import GRBM
 
 
 class GDBN(object):
