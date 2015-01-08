@@ -46,7 +46,7 @@ def read_lexical_datas(file, compose_func=None):
 
 def compose_func_avg(tokens, word_vecs):
     token_vec = numpy.asarray([word_vecs[token] for token in tokens if token in word_vecs])
-    if token_vec:
+    if len(token_vec):
         avg_vec = numpy.average(token_vec, axis=0)
     else:
         avg_vec = numpy.zeros([WORD_VEC_DIM])
