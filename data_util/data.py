@@ -67,18 +67,42 @@ def compose_func_bigram(tokens, word_vecs):
     return bigram_vec
 
 
+def read_acoustic_datas(file):
+    f = open(file, 'r', encoding='utf-8')
+    tokens_list = [[float(token) for token in line.split()] for line in f]
+    return numpy.asarray(tokens_list)
+
+
 def read_labels(file):
     f = open(file, 'r', encoding='utf-8')
     return [int(line) for line in f]
 
 
-def process_raw_data():
-    xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_bigram)
+def process_raw_data_lexical():
+    xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_avg)
     ys = read_labels(r'../data/raw_data_balanced/label.txt')
-    f = open(r'../data/data_balanced/lexical_vec_bigram.txt', 'w', encoding='utf-8')
+    f = open(r'../data/data_balanced/lexical_vec_avg01.txt', 'w', encoding='utf-8')
+    for x, y in zip(xs, ys):
+        f.write(Data(x, y).to_str() + '\n')
+
+
+def process_raw_data_acoustic():
+    xs = read_acoustic_datas(r'../data/raw_data_balanced/acoustic_scale.txt')
+    ys = read_labels(r'../data/raw_data_balanced/label.txt')
+    f = open(r'../data/data_balanced/acoustic.txt', 'w', encoding='utf-8')
+    for x, y in zip(xs, ys):
+        f.write(Data(x, y).to_str() + '\n')
+
+
+def process_raw_data_acous_lex():
+    acous_xs = read_acoustic_datas(r'../data/raw_data_balanced/acoustic_scale.txt')
+    lex_xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_bigram)
+    xs = numpy.hstack((acous_xs, lex_xs))
+    ys = read_labels(r'../data/raw_data_balanced/label.txt')
+    f = open(r'../data/data_balanced/acous_lex_bigram.txt', 'w', encoding='utf-8')
     for x, y in zip(xs, ys):
         f.write(Data(x, y).to_str() + '\n')
 
 
 if __name__ == '__main__':
-    process_raw_data()
+    process_raw_data_lexical()

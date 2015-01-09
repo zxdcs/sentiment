@@ -3,7 +3,6 @@ The denoising auto-encoders (dA) using Theano.
 """
 
 import os
-import sys
 import time
 
 import numpy
@@ -11,7 +10,7 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from dnn.logistic_sgd import load_data
+from dnn.data_reader import load_data
 
 
 class dA(object):
@@ -209,7 +208,7 @@ class dA(object):
         return cost, updates
 
 
-def test_dA(dataset, learning_rate=0.1, training_epochs=15, batch_size=20, n_hidden=500):
+def test_dA(datasets, learning_rate=0.1, training_epochs=15, batch_size=20, n_hidden=500):
     """
 
     :type learning_rate: float
@@ -219,11 +218,8 @@ def test_dA(dataset, learning_rate=0.1, training_epochs=15, batch_size=20, n_hid
     :type training_epochs: int
     :param training_epochs: number of epochs used for training
 
-    :type dataset: string
-    :param dataset: path to the picked dataset
 
     """
-    datasets = load_data(dataset)
     train_set_x, train_set_y = datasets[0]
 
     # compute number of minibatches for training, validation and testing
@@ -284,10 +280,10 @@ def test_dA(dataset, learning_rate=0.1, training_epochs=15, batch_size=20, n_hid
 
     training_time = (end_time - start_time)
 
-    print >> sys.stderr, ('The no corruption code for file ' +
-                          os.path.split(__file__)[1] +
-                          ' ran for %.2fm' % (training_time / 60.))
+    print('The no corruption code for file ' +
+          os.path.split(__file__)[1] +
+          ' ran for %.2fm' % (training_time / 60.))
 
 
 if __name__ == '__main__':
-    test_dA(r'D:\workspace\sentiment\data_balanced\lexical.txt')
+    test_dA(load_data(r'D:\workspace\sentiment\data_balanced\lexical.txt'))

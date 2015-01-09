@@ -2,7 +2,6 @@
 The stacked denoising auto-encoders (SdA) using Theano.
 """
 import os
-import sys
 import time
 
 import numpy
@@ -10,7 +9,8 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from dnn.logistic_sgd import LogisticRegression, load_data
+from dnn.logistic_sgd import LogisticRegression
+from dnn.data_reader import load_data
 from dnn.mlp import HiddenLayer
 from dnn.dA import dA
 
@@ -248,7 +248,7 @@ class SdA(object):
         return train_fn, valid_score_i
 
 
-def test_SdA(dataset, finetune_lr=0.1, pretraining_epochs=15,
+def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
              pretrain_lr=0.001, training_epochs=1000, batch_size=1):
     """
     Demonstrates how to train and test a stochastic denoising autoencoder.
@@ -266,12 +266,10 @@ def test_SdA(dataset, finetune_lr=0.1, pretraining_epochs=15,
     :type training_epochs: int
     :param training_epochs: maximal number of iterations ot run the optimizer
 
-    :type dataset: string
-    :param dataset: path the the pickled dataset
+    :type datasets: string
+    :param datasets: datasets
 
     """
-
-    datasets = load_data(dataset)
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
@@ -289,7 +287,7 @@ def test_SdA(dataset, finetune_lr=0.1, pretraining_epochs=15,
     sda = SdA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[2000, 2000, 2000],
+        hidden_layers_sizes=[400, 400, 400],
         n_outs=2
     )
     #########################
@@ -316,9 +314,9 @@ def test_SdA(dataset, finetune_lr=0.1, pretraining_epochs=15,
 
     end_time = time.clock()
 
-    print >> sys.stderr, ('The pretraining code for file ' +
-                          os.path.split(__file__)[1] +
-                          ' ran for %.2fm' % ((end_time - start_time) / 60.))
+    print('The pretraining code for file ' +
+          os.path.split(__file__)[1] +
+          ' ran for %.2fm' % ((end_time - start_time) / 60.))
 
     ########################
     # FINETUNING THE MODEL #
@@ -358,9 +356,9 @@ def test_SdA(dataset, finetune_lr=0.1, pretraining_epochs=15,
     end_time = time.clock()
     print('Optimization complete with best validation score of {0:.1f} %,'
           .format(best_fscore * 100.))
-    print >> sys.stderr, ('The training code for file ' +
-                          os.path.split(__file__)[1] +
-                          ' ran for %.2fm' % ((end_time - start_time) / 60.))
+    print('The training code for file ' +
+          os.path.split(__file__)[1] +
+          ' ran for %.2fm' % ((end_time - start_time) / 60.))
 
 
 def f_score(y_real, y_pred, target=1, label_num=2):
@@ -380,5 +378,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_SdA(r'D:\workspace\sentiment\data_balanced\acoustic.txt', pretraining_epochs=10, training_epochs=150,
+    test_SdA(load_data(r'..\data\data_balanced\acoustic.txt'), pretraining_epochs=1, training_epochs=150,
              batch_size=10)

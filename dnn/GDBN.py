@@ -2,7 +2,6 @@
 The binary DBN
 """
 import os
-import sys
 import time
 
 import numpy
@@ -10,7 +9,8 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from dnn.logistic_sgd import LogisticRegression, load_data
+from dnn.logistic_sgd import LogisticRegression
+from dnn.data_reader import load_data
 from dnn.mlp import HiddenLayer
 from dnn.rbm import RBM
 from dnn.grbm import GRBM
@@ -244,7 +244,7 @@ class GDBN(object):
         return train_fn, validate_model
 
 
-def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
+def test_DBN(datasets, finetune_lr=0.1, pretraining_epochs=100,
              pretrain_lr=0.01, k=1, training_epochs=1000, batch_size=10):
     """
     Demonstrates how to train and test a Deep Belief Network.
@@ -261,13 +261,10 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     :param k: number of Gibbs steps in CD/PCD
     :type training_epochs: int
     :param training_epochs: maximal number of iterations ot run the optimizer
-    :type dataset: string
-    :param dataset: path the the pickled dataset
     :type batch_size: int
     :param batch_size: the size of a minibatch
     """
 
-    datasets = load_data(dataset)
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
 
@@ -306,9 +303,9 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
 
     end_time = time.clock()
     # end-snippet-2
-    print >> sys.stderr, ('The pretraining code for file ' +
-                          os.path.split(__file__)[1] +
-                          ' ran for %.2fm' % ((end_time - start_time) / 60.))
+    print('The pretraining code for file ' +
+          os.path.split(__file__)[1] +
+          ' ran for %.2fm' % ((end_time - start_time) / 60.))
     ########################
     # FINETUNING THE MODEL #
     ########################
@@ -347,10 +344,10 @@ def test_DBN(dataset, finetune_lr=0.1, pretraining_epochs=100,
     end_time = time.clock()
     print('Optimization complete with best validation score of {0:.1f} %,'
           .format(best_fscore * 100.))
-    print >> sys.stderr, ('The fine tuning code for file ' +
-                          os.path.split(__file__)[1] +
-                          ' ran for %.2fm' % ((end_time - start_time)
-                                              / 60.))
+    print('The fine tuning code for file ' +
+          os.path.split(__file__)[1] +
+          ' ran for %.2fm' % ((end_time - start_time)
+                              / 60.))
 
 
 def f_score(y_real, y_pred, target=1, label_num=2):
@@ -370,5 +367,6 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_DBN(r'D:\workspace\sentiment\data_balanced\acoustic.txt', pretraining_epochs=10, training_epochs=100,
+    test_DBN(load_data(r'D:\workspace\sentiment\data_balanced\acoustic.txt'), pretraining_epochs=10,
+             training_epochs=100,
              batch_size=20, k=1)

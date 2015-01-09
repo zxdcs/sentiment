@@ -5,14 +5,11 @@ Logistic regression using stochastic gradient descent for sentiment classificati
 __docformat__ = 'restructedtext en'
 
 import os
-import sys
 import time
-import gzip
-import pickle
 
-import numpy
-import theano
 import theano.tensor as T
+
+from dnn.data_reader import *
 
 
 class LogisticRegression(object):
@@ -107,111 +104,7 @@ class LogisticRegression(object):
         # end-snippet-2
 
 
-def load_data(dataset):
-    """ Loads the dataset
-
-    :type dataset: string
-    :param dataset: the path to the dataset
-    """
-
-    # Load the dataset
-    print('... loading data')
-    f = open(dataset, 'r')
-    dim = float(f.readline().split(' ')[1])
-
-    all_datas = f.readlines()
-    n = len(all_datas)
-    x = numpy.zeros([n, dim])
-    y = numpy.zeros(n)
-    for i in range(n):
-        tokens = all_datas[i].split(' ')
-        y[i] = int(tokens[0])
-        for j in range(1, len(tokens)):
-            idx = tokens[j].find(':')
-            if idx != -1:
-                feature = int(tokens[j][:idx]) - 1
-                d = float(tokens[j][idx + 1:])
-                x[i][feature] = d
-    # train_idx = int(0.9 * n)
-    # train_set = (x[:train_idx], y[:train_idx])
-    # valid_set = (x[train_idx:], y[train_idx:])
-    st = int(0.9 * n)
-    end = int(1 * n)
-    train_set = (numpy.append(x[:st], x[end:], axis=0), numpy.append(y[:st], y[end:], axis=0))
-    valid_set = (x[st:end], y[st:end])
-
-    f.close()
-    # train_set, valid_set, test_set format: tuple(input, target)
-    # input is an numpy.ndarray of 2 dimensions (a matrix)
-    # witch row's correspond to an example. target is a
-    # numpy.ndarray of 1 dimensions (vector)) that have the same length as
-    # the number of rows in the input. It should give the target
-    # target to the example with the same index in the input.
-
-    def shared_dataset(data_xy, borrow=True):
-        """ Function that loads the dataset into shared variables
-
-        The reason we store our dataset in shared variables is to allow
-        Theano to copy it into the GPU memory (when code is run on GPU).
-        Since copying data into the GPU is slow, copying a minibatch everytime
-        is needed (the default behaviour if the data is not in a shared
-        variable) would lead to a large decrease in performance.
-        """
-        data_x, data_y = data_xy
-        shared_x = theano.shared(numpy.asarray(data_x, dtype=theano.config.floatX), borrow=borrow)
-        shared_y = theano.shared(numpy.asarray(data_y, dtype='int32'), borrow=borrow)
-
-        return shared_x, shared_y
-
-    valid_set_x, valid_set_y = shared_dataset(valid_set)
-    train_set_x, train_set_y = shared_dataset(train_set)
-
-    rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y)]
-    return rval
-
-
-def load_data_mnist(dataset):
-    """ Loads the dataset
-
-    :type dataset: string
-    :param dataset: the path to the dataset (here MNIST)
-    """
-
-    print('... loading data')
-
-    # Load the dataset
-    f = gzip.open(dataset, 'rb')
-    train_set, valid_set, test_set = pickle.load(f)
-    f.close()
-
-    def shared_dataset(data_xy, borrow=True):
-        """ Function that loads the dataset into shared variables
-
-        The reason we store our dataset in shared variables is to allow
-        Theano to copy it into the GPU memory (when code is run on GPU).
-        Since copying data into the GPU is slow, copying a minibatch everytime
-        is needed (the default behaviour if the data is not in a shared
-        variable) would lead to a large decrease in performance.
-        """
-        data_x, data_y = data_xy
-        shared_x = theano.shared(numpy.asarray(data_x,
-                                               dtype=theano.config.floatX),
-                                 borrow=borrow)
-        shared_y = theano.shared(numpy.asarray(data_y,
-                                               dtype='int32'),
-                                 borrow=borrow)
-        return shared_x, shared_y
-
-    test_set_x, test_set_y = shared_dataset(test_set)
-    valid_set_x, valid_set_y = shared_dataset(valid_set)
-    train_set_x, train_set_y = shared_dataset(train_set)
-
-    rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y),
-            (test_set_x, test_set_y)]
-    return rval
-
-
-def sgd_optimization(dataset, learning_rate=0.13, n_epochs=1000, batch_size=30):
+def sgd_optimization(datasets, learning_rate=0.13, n_epochs=1000, batch_size=30):
     """
     Demonstrate stochastic gradient descent optimization of a log-linear
     model
@@ -225,11 +118,10 @@ def sgd_optimization(dataset, learning_rate=0.13, n_epochs=1000, batch_size=30):
     :type n_epochs: int
     :param n_epochs: maximal number of epochs to run the optimizer
 
-    :type dataset: string
-    :param dataset: the path of the dataset
+    :type datasets: string
+    :param datasets: datasets
 
     """
-    datasets = load_data(dataset)
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
@@ -330,8 +222,10 @@ def sgd_optimization(dataset, learning_rate=0.13, n_epochs=1000, batch_size=30):
           .format(best_fscore * 100.))
     print('The code run for {0:d} epochs, with {1:f} epochs/sec'
           .format(epoch, 1. * epoch / (end_time - start_time)))
-    print >> sys.stderr, ('The code for file ' + os.path.split(__file__)[1] +
-                          ' ran for {0:.1f}s'.format(end_time - start_time))
+    print('The code for file ' + os.path.split(__file__)[1] +
+          ' ran for {0:.1f}s'.format(end_time - start_time))
+
+    return best_fscore
 
 
 def errors(y_real, y_pred):
@@ -363,5 +257,19 @@ def f_score(y_real, y_pred, target=1, label_num=2):
     return fscore
 
 
+def corss_validation():
+    k = 10
+    avg_score = 0
+    x, y = read_data(r'..\data\data_balanced\lexical_vec_avg.txt')
+    for p_st in [x / k for x in range(0, k)]:
+        p_en = p_st + 1 / k
+        datas = split_data(x, y, p_st, p_en)
+        score = sgd_optimization(datas, n_epochs=100)
+        avg_score += score
+    avg_score /= k
+    print('Average score is: {0:f}'.format(avg_score))
+
+
 if __name__ == '__main__':
-    sgd_optimization(r'D:\workspace\sentiment\data_balanced\acoustic.txt', n_epochs=100)
+    # sgd_optimization(load_data(r'..\data\data_balanced\acous_lex_bigram.txt'), n_epochs=100)
+    corss_validation()

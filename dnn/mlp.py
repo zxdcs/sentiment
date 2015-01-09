@@ -4,14 +4,14 @@ The multilayer perceptron using Theano.
 __docformat__ = 'restructedtext en'
 
 import os
-import sys
 import time
 
 import numpy
 import theano
 import theano.tensor as T
 
-from dnn.logistic_sgd import LogisticRegression, load_data
+from dnn.logistic_sgd import LogisticRegression
+from dnn.data_reader import load_data
 
 
 class HiddenLayer(object):
@@ -170,7 +170,7 @@ class MLP(object):
         # end-snippet-3
 
 
-def test_mlp(dataset, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
+def test_mlp(datasets, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
              batch_size=20, n_hidden=500):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
@@ -191,11 +191,7 @@ def test_mlp(dataset, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1
     :type n_epochs: int
     :param n_epochs: maximal number of epochs to run the optimizer
 
-    :type dataset: string
-    :param dataset: the path of the dataset file
-
    """
-    datasets = load_data(dataset)
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
@@ -305,9 +301,9 @@ def test_mlp(dataset, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1
     end_time = time.clock()
     print('Optimization complete with best validation score of {0:.1f} %,'
           .format(best_fscore * 100.))
-    print >> sys.stderr, ('The code for file ' +
-                          os.path.split(__file__)[1] +
-                          ' ran for %.2fm' % ((end_time - start_time) / 60.))
+    print('The code for file ' +
+          os.path.split(__file__)[1] +
+          ' ran for %.2fm' % ((end_time - start_time) / 60.))
 
 
 def f_score(y_real, y_pred, target=1, label_num=2):
@@ -326,4 +322,4 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_mlp(r'D:\workspace\sentiment\data_balanced\lexical.txt', n_epochs=100)
+    test_mlp(load_data(r'D:\workspace\sentiment\data_balanced\lexical.txt'), n_epochs=100)

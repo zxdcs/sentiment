@@ -8,7 +8,7 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from dnn.logistic_sgd import load_data
+from dnn.data_reader import load_data
 
 L1 = 0.00  # L1 regularization param (set to 0 for no L1 regularization)
 
@@ -359,7 +359,7 @@ class GRBM(object):
         return cross_entropy
 
 
-def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
+def test_rbm(datasets, learning_rate=0.1, training_epochs=15, batch_size=20,
              n_chains=20, n_samples=10, n_hidden=500):
     """
     Demonstrate how to train and afterwards sample from it using Theano.
@@ -370,8 +370,6 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
 
     :param training_epochs: number of epochs used for training
 
-    :param dataset: path the the pickled dataset
-
     :param batch_size: size of a batch used to train the RBM
 
     :param n_chains: number of parallel Gibbs chains to be used for sampling
@@ -379,7 +377,6 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
     :param n_samples: number of samples to plot for each chain
 
     """
-    datasets = load_data(dataset)
 
     train_set_x, train_set_y = datasets[0]
     test_set_x, test_set_y = datasets[1]
@@ -492,4 +489,4 @@ def test_rbm(dataset, learning_rate=0.1, training_epochs=15, batch_size=20,
 
 
 if __name__ == '__main__':
-    test_rbm(r'D:\workspace\sentiment\data_balanced\acoustic.txt')
+    test_rbm(load_data(r'D:\workspace\sentiment\data_balanced\acoustic.txt'))
