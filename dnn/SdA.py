@@ -12,10 +12,10 @@ from theano.tensor.shared_randomstreams import RandomStreams
 from dnn.logistic_sgd import LogisticRegression
 from dnn.data_reader import load_data
 from dnn.mlp import HiddenLayer
-from dnn.dA import dA
+from dnn.da import DA
 
 
-class SdA(object):
+class SDA(object):
     """Stacked denoising auto-encoder class (SdA)
 
     A stacked denoising autoencoder model is obtained by stacking several
@@ -114,7 +114,7 @@ class SdA(object):
 
             # Construct a denoising autoencoder that shared weights with this
             # layer
-            dA_layer = dA(numpy_rng=numpy_rng,
+            dA_layer = DA(numpy_rng=numpy_rng,
                           theano_rng=theano_rng,
                           input=layer_input,
                           n_visible=input_size,
@@ -284,7 +284,7 @@ def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
     print('... building the model')
     # construct the stacked denoising autoencoder class
     dim = int(train_set_x.get_value(borrow=True).shape[1])
-    sda = SdA(
+    sda = SDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
         hidden_layers_sizes=[400, 400, 400],
@@ -378,5 +378,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_SdA(load_data(r'..\data\data_balanced\acoustic.txt'), pretraining_epochs=1, training_epochs=150,
-             batch_size=10)
+    test_SdA(load_data(r'..\data\data_balanced\lexical_vec_bigram.txt'), pretraining_epochs=50, training_epochs=300,
+             batch_size=50)

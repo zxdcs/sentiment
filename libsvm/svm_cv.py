@@ -4,7 +4,7 @@ from libsvm.svmutil import *
 
 
 def cross_validation(file, k=10):
-    param = '-t 2 -c 1 -g 0.05'
+    param = '-t 2 -c 12'
     y, x = svm_read_problem(file)
     total_len = len(y)
     fold_len = total_len // k
@@ -41,5 +41,5 @@ def fscore(calc_list, real_list, target_label=1):
 
 
 if __name__ == '__main__':
-    score = cross_validation(r'..\data\data_balanced\lexical_vec_avg01.txt')
+    score = cross_validation(r'..\data\data_balanced\lexical_vec_avg.txt')
     print(score)

@@ -50,7 +50,7 @@ def compose_func_avg(tokens, word_vecs):
         avg_vec = numpy.average(token_vec, axis=0)
     else:
         avg_vec = numpy.zeros([WORD_VEC_DIM])
-    return avg_vec
+    return sigmoid(avg_vec)
 
 
 def compose_func_bigram(tokens, word_vecs):
@@ -58,12 +58,12 @@ def compose_func_bigram(tokens, word_vecs):
     if len(token_vec) > 1:
         bigram_vec = numpy.zeros([WORD_VEC_DIM])
         for i in range(1, len(token_vec)):
-            bigram_vec += numpy.tanh(token_vec[i - 1] + token_vec[i])
+            bigram_vec += sigmoid(token_vec[i - 1] + token_vec[i])
         bigram_vec /= len(token_vec)
     elif len(token_vec) == 1:
-        bigram_vec = numpy.tanh(token_vec[0])
+        bigram_vec = sigmoid(token_vec[0])
     else:
-        bigram_vec = numpy.zeros([WORD_VEC_DIM])
+        bigram_vec = sigmoid(numpy.zeros([WORD_VEC_DIM]))
     return bigram_vec
 
 
@@ -78,10 +78,14 @@ def read_labels(file):
     return [int(line) for line in f]
 
 
+def sigmoid(x):
+    return (numpy.tanh(x / 2) + 1) / 2
+
+
 def process_raw_data_lexical():
-    xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_avg)
+    xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_bigram)
     ys = read_labels(r'../data/raw_data_balanced/label.txt')
-    f = open(r'../data/data_balanced/lexical_vec_avg01.txt', 'w', encoding='utf-8')
+    f = open(r'../data/data_balanced/lexical_vec_bigram.txt', 'w', encoding='utf-8')
     for x, y in zip(xs, ys):
         f.write(Data(x, y).to_str() + '\n')
 

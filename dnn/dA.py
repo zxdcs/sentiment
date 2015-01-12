@@ -13,7 +13,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 from dnn.data_reader import load_data
 
 
-class dA(object):
+class DA(object):
     """
     Denoising Auto-Encoder class (dA)
     A denoising autoencoders tries to reconstruct the input from a corrupted
@@ -237,7 +237,7 @@ def test_dA(datasets, learning_rate=0.1, training_epochs=15, batch_size=20, n_hi
     theano_rng = RandomStreams(rng.randint(2 ** 30))
 
     dim = int(train_set_x.get_value(borrow=True).shape[1])
-    da = dA(
+    da = DA(
         numpy_rng=rng,
         theano_rng=theano_rng,
         input=x,

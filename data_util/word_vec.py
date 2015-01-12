@@ -1,5 +1,7 @@
 __author__ = 'zxd'
 
+''' not use this method '''
+
 
 def read_word_vec(file):
     f = open(file, encoding='utf-8')
