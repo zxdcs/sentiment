@@ -34,8 +34,8 @@ def load_data(dataset):
                 feature = int(tokens[j][:idx]) - 1
                 d = float(tokens[j][idx + 1:])
                 x[i][feature] = d
-    st = int(0.9 * n)
-    end = int(1 * n)
+    st = int(0.3 * n)
+    end = int(0.4 * n)
     train_set = (numpy.append(x[:st], x[end:], axis=0), numpy.append(y[:st], y[end:], axis=0))
     valid_set = (x[st:end], y[st:end])
 

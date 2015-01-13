@@ -54,162 +54,119 @@ class MMSDA(object):
                         input_size = n_ins[k]
                         layer_input = self.x[k]
                     else:  # fusion layers
-                        input_size = numpy.sum([size[-1]] for size in hidden_layers_sizes)
-                        # TODO
-                        layer_input =
+                        input_size = numpy.sum([hidden_layers_sizes[m][-1] for m in range(self.n_modals - 1)])
+                        layer_input = T.concatenate(
+                            [self.sigmoid_layers[m][-1].output for m in range(self.n_modals - 1)],
+                            axis=1)
                 else:
                     input_size = hidden_layers_sizes[k][i - 1]
                     layer_input = self.sigmoid_layers[k][-1].output
 
-            sigmoid_layer = HiddenLayer(rng=numpy_rng,
-                                        input=layer_input,
-                                        n_in=input_size,
-                                        n_out=hidden_layers_sizes[k][i],
-                                        activation=T.nnet.sigmoid)  # add the layer to our list of layers
-            self.sigmoid_layers[k].append(sigmoid_layer)
-            self.params.extend(sigmoid_layer.params)
+                sigmoid_layer = HiddenLayer(rng=numpy_rng,
+                                            input=layer_input,
+                                            n_in=input_size,
+                                            n_out=hidden_layers_sizes[k][i],
+                                            activation=T.nnet.sigmoid)  # add the layer to our list of layers
+                self.sigmoid_layers[k].append(sigmoid_layer)
+                self.params.extend(sigmoid_layer.params)
 
-            # Construct a denoising autoencoder that shared weights with this layer
-            da_layer = DA(numpy_rng=numpy_rng,
-                          theano_rng=theano_rng,
-                          input=layer_input,
-                          n_visible=input_size,
-                          n_hidden=hidden_layers_sizes[k][i],
-                          W=sigmoid_layer.W,
-                          bhid=sigmoid_layer.b)
-            self.da_layers[k].append(da_layer)
+                # Construct a denoising autoencoder that shared weights with this layer
+                da_layer = DA(numpy_rng=numpy_rng,
+                              theano_rng=theano_rng,
+                              input=layer_input,
+                              n_visible=input_size,
+                              n_hidden=hidden_layers_sizes[k][i],
+                              W=sigmoid_layer.W,
+                              bhid=sigmoid_layer.b)
+                self.da_layers[k].append(da_layer)
 
-    # Construct fusion layer
-
-
-    self.logLayer = LogisticRegression(
-        input=self.sigmoid_layers[-1].output,
-        n_in=hidden_layers_sizes[-1],
-        n_out=n_outs
-    )
-
-    self.params.extend(self.logLayer.params)
-    # construct a function that implements one step of finetunining
-
-    # compute the cost for second phase of training,
-    # defined as the negative log likelihood
-    self.finetune_cost = self.logLayer.negative_log_likelihood(self.y)
-    # compute the gradients with respect to the model parameters
-    # symbolic variable that points to the number of errors made on the
-    # minibatch given by self.x and self.y
-
-    # predict y
-    self.y_pred = self.logLayer.y_pred
-
-
-def pretraining_functions(self, train_set_x, batch_size):
-    """ Generates a list of functions, each of them implementing one
-    step in trainnig the dA corresponding to the layer with same index.
-    The function will require as input the minibatch index, and to train
-    a dA you just need to iterate, calling the corresponding function on
-    all minibatch indexes.
-
-    :type train_set_x: theano.tensor.TensorType
-    :param train_set_x: Shared variable that contains all datapoints used
-                        for training the dA
-
-    :type batch_size: int
-    :param batch_size: size of a [mini]batch
-
-    """
-
-    # index to a [mini]batch
-    index = T.lscalar('index')  # index to a minibatch
-    corruption_level = T.scalar('corruption')  # % of corruption to use
-    learning_rate = T.scalar('lr')  # learning rate to use
-    # begining of a batch, given `index`
-    batch_begin = index * batch_size
-    # ending of a batch given `index`
-    batch_end = batch_begin + batch_size
-
-    pretrain_fns = []
-    for da in self.da_layers:
-        # get the cost and the updates list
-        cost, updates = da.get_cost_updates(corruption_level,
-                                            learning_rate)
-        # compile the theano function
-        fn = theano.function(
-            inputs=[
-                index,
-                theano.Param(corruption_level, default=0.2),
-                theano.Param(learning_rate, default=0.1)
-            ],
-            outputs=cost,
-            updates=updates,
-            givens={
-                self.x: train_set_x[batch_begin: batch_end]
-            }
+        # Construct logistic layer
+        self.logLayer = LogisticRegression(
+            input=self.sigmoid_layers[-1][-1].output,
+            n_in=hidden_layers_sizes[-1][-1],
+            n_out=n_outs
         )
-        # append `fn` to the list of functions
-        pretrain_fns.append(fn)
 
-    return pretrain_fns
+        self.params.extend(self.logLayer.params)
+        # construct a function that implements one step of finetunining
+
+        # compute the cost for second phase of training,
+        # defined as the negative log likelihood
+        self.finetune_cost = self.logLayer.negative_log_likelihood(self.y)
+
+        # predict y
+        self.y_pred = self.logLayer.y_pred
+
+    def pretraining_functions(self, datasets_modals, batch_size):
+        # index to a [mini]batch
+        index = T.lscalar('index')  # index to a minibatch
+        corruption_level = T.scalar('corruption')  # % of corruption to use
+        learning_rate = T.scalar('lr')  # learning rate to use
+        # begining of a batch, given `index`
+        batch_begin = index * batch_size
+        # ending of a batch given `index`
+        batch_end = batch_begin + batch_size
+
+        pretrain_fns = []
+        givens = [(self.x[k], datasets_modals[k][0][0][batch_begin: batch_end]) for k in range(self.n_modals - 1)]
+        for da_layers_modal in self.da_layers:
+            for da in da_layers_modal:
+                # get the cost and the updates list
+                cost, updates = da.get_cost_updates(corruption_level, learning_rate)
+                # compile the theano function
+                fn = theano.function(
+                    inputs=[
+                        index,
+                        theano.Param(corruption_level, default=0.2),
+                        theano.Param(learning_rate, default=0.1)
+                    ],
+                    outputs=cost,
+                    updates=updates,
+                    givens=givens,
+                    on_unused_input='warn'
+                )
+                # append `fn` to the list of functions
+                pretrain_fns.append(fn)
+
+        return pretrain_fns
+
+    def build_finetune_functions(self, datasets_modals, batch_size, learning_rate):
+        index = T.lscalar('index')  # index to a [mini]batch
+        batch_begin = index * batch_size
+        batch_end = batch_begin + batch_size
+
+        # compute the gradients with respect to the model parameters
+        gparams = T.grad(self.finetune_cost, self.params)
+
+        # compute list of fine-tuning updates
+        updates = [
+            (param, param - gparam * learning_rate)
+            for param, gparam in zip(self.params, gparams)
+        ]
+
+        train_givens = [(self.x[k], datasets_modals[k][0][0][batch_begin: batch_end]) for k in range(self.n_modals - 1)]
+        train_givens.append((self.y, datasets_modals[0][0][1][batch_begin: batch_end]))
+        train_fn = theano.function(
+            inputs=[index],
+            outputs=self.finetune_cost,
+            updates=updates,
+            givens=train_givens,
+            name='train'
+        )
+
+        valid_givens = [(self.x[k], datasets_modals[k][1][0][batch_begin: batch_end]) for k in range(self.n_modals - 1)]
+        valid_score_i = theano.function(
+            [index],
+            self.y_pred,
+            givens=valid_givens,
+            name='valid'
+        )
+
+        return train_fn, valid_score_i
 
 
-def build_finetune_functions(self, datasets, batch_size, learning_rate):
-    """Generates a function `train` that implements one step of
-    finetuning, a function `validate` that computes the error on
-    a batch from the validation set, and a function `test` that
-    computes the error on a batch from the testing set
-
-    :type datasets: list of pairs of theano.tensor.TensorType
-    :param datasets: It is a list that contain all the datasets;
-                     the has to contain three pairs, `train`,
-                     `valid`, `test` in this order, where each pair
-                     is formed of two Theano variables, one for the
-                     datapoints, the other for the labels
-
-    :type batch_size: int
-    :param batch_size: size of a minibatch
-
-    :type learning_rate: float
-    :param learning_rate: learning rate used during finetune stage
-    """
-
-    (train_set_x, train_set_y) = datasets[0]
-    (valid_set_x, valid_set_y) = datasets[1]
-
-    index = T.lscalar('index')  # index to a [mini]batch
-
-    # compute the gradients with respect to the model parameters
-    gparams = T.grad(self.finetune_cost, self.params)
-
-    # compute list of fine-tuning updates
-    updates = [
-        (param, param - gparam * learning_rate)
-        for param, gparam in zip(self.params, gparams)
-    ]
-
-    train_fn = theano.function(
-        inputs=[index],
-        outputs=self.finetune_cost,
-        updates=updates,
-        givens={
-            self.x: train_set_x[index * batch_size: (index + 1) * batch_size],
-            self.y: train_set_y[index * batch_size: (index + 1) * batch_size]
-        },
-        name='train'
-    )
-
-    valid_score_i = theano.function(
-        [index],
-        self.y_pred,
-        givens={
-            self.x: valid_set_x[index * batch_size: (index + 1) * batch_size],
-        },
-        name='valid'
-    )
-
-    return train_fn, valid_score_i
-
-
-def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
-             pretrain_lr=0.001, training_epochs=1000, batch_size=1):
+def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
+               pretrain_lr=0.001, training_epochs=1000, batch_size=1):
     """
     Demonstrates how to train and test a stochastic denoising autoencoder.
 
@@ -226,41 +183,34 @@ def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
     :type training_epochs: int
     :param training_epochs: maximal number of iterations ot run the optimizer
 
-    :type datasets: string
-    :param datasets: datasets
-
     """
 
-    train_set_x, train_set_y = datasets[0]
-    valid_set_x, valid_set_y = datasets[1]
-
     # compute number of minibatches for training, validation
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
-    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size + 1
-
-    # numpy random generator
-    # start-snippet-3
+    n_train_batches = datasets_modals[0][0][0].get_value(borrow=True).shape[0] // batch_size
+    n_valid_batches = datasets_modals[0][1][0].get_value(borrow=True).shape[0] // batch_size + 1
     numpy_rng = numpy.random.RandomState(89677)
     print('... building the model')
+
     # construct the stacked denoising autoencoder class
-    dim = int(train_set_x.get_value(borrow=True).shape[1])
-    sda = SDA(
+    dim = [int(dataset[0][0].get_value(borrow=True).shape[1]) for dataset in datasets_modals]
+    sda = MMSDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[400, 400, 400],
+        hidden_layers_sizes=[[800, 600, 400], [400, 400, 400], [600]],
         n_outs=2
     )
+
     #########################
     # PRETRAINING THE MODEL #
     #########################
     print('... getting the pretraining functions')
-    pretraining_fns = sda.pretraining_functions(train_set_x=train_set_x,
+    pretraining_fns = sda.pretraining_functions(datasets_modals=datasets_modals,
                                                 batch_size=batch_size)
     print('... pre-training the model')
     start_time = time.clock()
     # Pre-train layer-wise
-    corruption_levels = [.5, .5, .5]
-    for i in range(sda.n_layers):
+    corruption_levels = [.5, .5, .5, .5, .5, .5, .5]
+    for i, pt_fn in enumerate(pretraining_fns):
         # go through pretraining epochs
         for epoch in range(pretraining_epochs):
             # go through the training set
@@ -269,13 +219,9 @@ def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
                 c.append(pretraining_fns[i](index=batch_index,
                                             corruption=corruption_levels[i],
                                             lr=pretrain_lr))
-            print('Pre-training layer %i, epoch %d, cost ' % (i, epoch), end=' ')
-            print(numpy.mean(c))
-
+            print('Pre-training layer {0:d}, epoch {1:d}, cost {2:f}'.format(i, epoch, numpy.mean(c)))
     end_time = time.clock()
-
-    print('The pretraining code for file ' +
-          os.path.split(__file__)[1] +
+    print('The pretraining code for file ' + os.path.split(__file__)[1] +
           ' ran for %.2fm' % ((end_time - start_time) / 60.))
 
     ########################
@@ -285,7 +231,7 @@ def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
     # get the training, validation and testing function for the model
     print('... getting the finetuning functions')
     train_fn, validate_model = sda.build_finetune_functions(
-        datasets=datasets,
+        datasets_modals=datasets_modals,
         batch_size=batch_size,
         learning_rate=finetune_lr
     )
@@ -304,7 +250,7 @@ def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
         # compute f-score on validation set
         y_preds = [validate_model(i) for i in range(n_valid_batches)]
         y_pred = [pij for pi in y_preds for pij in pi]
-        y_real = valid_set_y.get_value(borrow=True)
+        y_real = datasets_modals[0][1][1].get_value(borrow=True)
         fscore, precison, recall = f_score(y_real, y_pred)
         print('epoch {0:d}, fscore {1:f}  precision {2:f}  recall {3:f}'.format(epoch, fscore, precison, recall))
 
@@ -338,5 +284,6 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_SdA(load_data(r'..\data\data_balanced\lexical_vec_bigram.txt'), pretraining_epochs=50, training_epochs=300,
-             batch_size=50)
+    acoustic_data = load_data(r'..\data\data_balanced\acoustic.txt')
+    text_data = load_data(r'..\data\data_balanced\lexical_vec_bigram.txt')
+    test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=300, batch_size=50)

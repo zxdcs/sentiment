@@ -109,4 +109,4 @@ def process_raw_data_acous_lex():
 
 
 if __name__ == '__main__':
-    process_raw_data_lexical()
+    process_raw_data_acous_lex()
