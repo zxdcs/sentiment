@@ -25,7 +25,7 @@ class Data(object):
 def read_lexical_datas(file, compose_func=None):
     pynlpir.open()
     f = open(file, 'r', encoding='utf-8')
-    tokens_list = [pynlpir.segment(line.replace('幺', '一'), pos_tagging=False) for line in f]
+    tokens_list = [pynlpir.segment(line.rstrip('\n').replace('幺', '一'), pos_tagging=False) for line in f]
     if compose_func is None:
         word_idx = {}
         for tokens in tokens_list:
@@ -83,30 +83,30 @@ def sigmoid(x):
 
 
 def process_raw_data_lexical():
-    xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_bigram)
-    ys = read_labels(r'../data/raw_data_balanced/label.txt')
-    f = open(r'../data/data_balanced/lexical_vec_bigram.txt', 'w', encoding='utf-8')
+    xs = read_lexical_datas(r'../data/raw_data_all/text.txt', compose_func=None)
+    ys = read_labels(r'../data/raw_data_all/label.txt')
+    f = open(r'../data/data_all/lexical_bow.txt', 'w', encoding='utf-8')
     for x, y in zip(xs, ys):
         f.write(Data(x, y).to_str() + '\n')
 
 
 def process_raw_data_acoustic():
-    xs = read_acoustic_datas(r'../data/raw_data_balanced/acoustic_scale.txt')
-    ys = read_labels(r'../data/raw_data_balanced/label.txt')
-    f = open(r'../data/data_balanced/acoustic.txt', 'w', encoding='utf-8')
+    xs = read_acoustic_datas(r'../data/raw_data_all/acoustic_scale.txt')
+    ys = read_labels(r'../data/raw_data_all/label.txt')
+    f = open(r'../data/data_all/acoustic.txt', 'w', encoding='utf-8')
     for x, y in zip(xs, ys):
         f.write(Data(x, y).to_str() + '\n')
 
 
 def process_raw_data_acous_lex():
-    acous_xs = read_acoustic_datas(r'../data/raw_data_balanced/acoustic_scale.txt')
-    lex_xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_bigram)
+    acous_xs = read_acoustic_datas(r'../data/raw_data_all/acoustic_scale.txt')
+    lex_xs = read_lexical_datas(r'../data/raw_data_all/text.txt', compose_func=compose_func_avg)
     xs = numpy.hstack((acous_xs, lex_xs))
-    ys = read_labels(r'../data/raw_data_balanced/label.txt')
-    f = open(r'../data/data_balanced/acous_lex_bigram.txt', 'w', encoding='utf-8')
+    ys = read_labels(r'../data/raw_data_all/label.txt')
+    f = open(r'../data/data_all/acous_lex_avg.txt', 'w', encoding='utf-8')
     for x, y in zip(xs, ys):
         f.write(Data(x, y).to_str() + '\n')
 
 
 if __name__ == '__main__':
-    process_raw_data_acous_lex()
+    process_raw_data_lexical()

@@ -7,9 +7,11 @@ __docformat__ = 'restructedtext en'
 import os
 import time
 
+import theano
+import numpy
 import theano.tensor as T
 
-from dnn.data_reader import *
+from dnn.data_reader import load_data, split_data, read_data
 
 
 class LogisticRegression(object):
@@ -78,7 +80,7 @@ class LogisticRegression(object):
         # parameters of the model
         self.params = [self.W, self.b]
 
-    def negative_log_likelihood(self, y):
+    def negative_log_likelihood(self, y, penalty=None):
         """Return the mean of the negative log-likelihood of the prediction
         of this model under a given target distribution.
 
@@ -89,7 +91,6 @@ class LogisticRegression(object):
         Note: we use the mean instead of the sum so that
               the learning rate is less dependent on the batch size
         """
-        # start-snippet-2
         # y.shape[0] is (symbolically) the number of rows in y, i.e.,
         # number of examples (call it n) in the minibatch
         # T.arange(y.shape[0]) is a symbolic vector which will contain
@@ -100,8 +101,11 @@ class LogisticRegression(object):
         # LP[n-1,y[n-1]]] and T.mean(LP[T.arange(y.shape[0]),y]) is
         # the mean (across minibatch examples) of the elements in v,
         # i.e., the mean log-likelihood across the minibatch.
-        return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
-        # end-snippet-2
+        if penalty is None:
+            return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+        else:
+            return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y]
+                           * penalty[T.arange(y.shape[0]), y])
 
 
 def sgd_optimization(datasets, learning_rate=0.13, n_epochs=1000, batch_size=30):
@@ -149,7 +153,9 @@ def sgd_optimization(datasets, learning_rate=0.13, n_epochs=1000, batch_size=30)
 
     # the cost we minimize during training is the negative log likelihood of
     # the model in symbolic format
-    cost = classifier.negative_log_likelihood(y)
+    penalty = [0.015, 1]
+    penalty_sh = theano.shared(numpy.asarray([penalty] * batch_size, dtype=theano.config.floatX), borrow=True)
+    cost = classifier.negative_log_likelihood(y, penalty_sh)
 
     # compiling a Theano function that computes the mistakes that are made by
     # the model on a minibatch
@@ -243,6 +249,7 @@ def errors(y_real, y_pred):
 
 
 def f_score(y_real, y_pred, target=1, label_num=2):
+    print(y_pred)
     if len(y_real) != len(y_pred):
         raise TypeError(
             'y_real should have the same shape as y_pred',
@@ -254,6 +261,7 @@ def f_score(y_real, y_pred, target=1, label_num=2):
     precison = count[target][target] / numpy.sum(count, axis=0)[target]
     recall = count[target][target] / numpy.sum(count, axis=1)[target]
     fscore = 2 * precison * recall / (precison + recall)
+    print('p:{0:f} r:{1:f} f:{2:f}'.format(precison, recall, fscore))
     return fscore
 
 
@@ -271,5 +279,5 @@ def corss_validation():
 
 
 if __name__ == '__main__':
-    # sgd_optimization(load_data(r'..\data\data_balanced\acous_lex_bigram.txt'), n_epochs=100)
-    corss_validation()
+    sgd_optimization(load_data(r'..\data\data_all\lexical_vec_avg.txt'), n_epochs=1000, batch_size=20)
+    # corss_validation()

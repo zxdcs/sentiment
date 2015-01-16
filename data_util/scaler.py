@@ -23,6 +23,6 @@ def scale_min_max(data, min=0, max=1):
 
 
 if __name__ == '__main__':
-    data_un = read_data(r'../data/raw_data_balanced/acoustic.txt')
+    data_un = read_data(r'../data/raw_data_all/acoustic.txt')
     data_sc = scale_min_max(data_un)
-    write_data(r'../data/raw_data_balanced/acoustic_scale.txt', data_sc)
+    write_data(r'../data/raw_data_all/acoustic_scale.txt', data_sc)
