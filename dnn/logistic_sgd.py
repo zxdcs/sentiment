@@ -11,7 +11,7 @@ import theano
 import numpy
 import theano.tensor as T
 
-from dnn.data_reader import load_data, split_data, read_data
+from dnn.data_reader import split_data, read_data, load_data
 
 
 class LogisticRegression(object):
@@ -131,7 +131,7 @@ def sgd_optimization(datasets, learning_rate=0.13, n_epochs=1000, batch_size=30)
     valid_set_x, valid_set_y = datasets[1]
 
     # compute number of minibatches for training, validation
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size + 1
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
     n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size + 1
 
     ######################
@@ -153,9 +153,9 @@ def sgd_optimization(datasets, learning_rate=0.13, n_epochs=1000, batch_size=30)
 
     # the cost we minimize during training is the negative log likelihood of
     # the model in symbolic format
-    penalty = [0.015, 1]
+    penalty = [0.2, 1]
     penalty_sh = theano.shared(numpy.asarray([penalty] * batch_size, dtype=theano.config.floatX), borrow=True)
-    cost = classifier.negative_log_likelihood(y, penalty_sh)
+    cost = classifier.negative_log_likelihood(y)
 
     # compiling a Theano function that computes the mistakes that are made by
     # the model on a minibatch
@@ -266,7 +266,7 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 def corss_validation():
-    k = 10
+    k = 4
     avg_score = 0
     x, y = read_data(r'..\data\data_balanced\lexical_vec_avg.txt')
     for p_st in [x / k for x in range(0, k)]:
@@ -279,5 +279,6 @@ def corss_validation():
 
 
 if __name__ == '__main__':
-    sgd_optimization(load_data(r'..\data\data_all\lexical_vec_avg.txt'), n_epochs=1000, batch_size=20)
+    sgd_optimization(load_data(r'..\data\data_balanced\lexical_vec_avg.txt', sp_idx=3701),
+                     n_epochs=100, batch_size=80)
     # corss_validation()

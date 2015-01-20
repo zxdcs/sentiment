@@ -378,5 +378,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_SdA(load_data(r'..\data\data_all\lexical_vec_bigram.txt'), pretraining_epochs=10, training_epochs=300,
-             batch_size=50)
+    test_SdA(load_data(r'..\data\data_balanced\lexical_vec_avg.txt', sp_idx=3725),
+             pretraining_epochs=50, training_epochs=300, batch_size=50, finetune_lr=0.2)

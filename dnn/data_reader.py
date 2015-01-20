@@ -3,7 +3,7 @@ import theano
 
 __author__ = 'zxd'
 
-
+'''
 def load_data(dataset):
     """ Loads the dataset
 
@@ -38,35 +38,19 @@ def load_data(dataset):
     end = int(1 * n)
     train_set = (numpy.append(x[:st], x[end:], axis=0), numpy.append(y[:st], y[end:], axis=0))
     valid_set = (x[st:end], y[st:end])
-
     f.close()
-    # train_set, valid_set, test_set format: tuple(input, target)
-    # input is an numpy.ndarray of 2 dimensions (a matrix)
-    # witch row's correspond to an example. target is a
-    # numpy.ndarray of 1 dimensions (vector)) that have the same length as
-    # the number of rows in the input. It should give the target
-    # target to the example with the same index in the input.
-
-    def shared_dataset(data_xy, borrow=True):
-        """ Function that loads the dataset into shared variables
-
-        The reason we store our dataset in shared variables is to allow
-        Theano to copy it into the GPU memory (when code is run on GPU).
-        Since copying data into the GPU is slow, copying a minibatch everytime
-        is needed (the default behaviour if the data is not in a shared
-        variable) would lead to a large decrease in performance.
-        """
-        data_x, data_y = data_xy
-        shared_x = theano.shared(numpy.asarray(data_x, dtype=theano.config.floatX), borrow=borrow)
-        shared_y = theano.shared(numpy.asarray(data_y, dtype='int32'), borrow=borrow)
-
-        return shared_x, shared_y
 
     valid_set_x, valid_set_y = shared_dataset(valid_set)
     train_set_x, train_set_y = shared_dataset(train_set)
-
     rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y)]
     return rval
+'''
+
+
+def load_data(dataset, sp_idx=3701):
+    # balance sp: 3701  imbalance sp: 23993
+    x, y = read_data(dataset)
+    return split_train_valid(x, y, sp_idx)
 
 
 def read_data(dataset):
@@ -103,6 +87,15 @@ def read_data(dataset):
     return x, y
 
 
+def split_train_valid(x, y, sp_idx):
+    train_set = (x[:sp_idx], y[:sp_idx])
+    valid_set = (x[sp_idx:], y[sp_idx:])
+    valid_set_x, valid_set_y = shared_dataset(valid_set)
+    train_set_x, train_set_y = shared_dataset(train_set)
+    rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y)]
+    return rval
+
+
 def split_data(x, y, p_st, p_en):
     n = len(x)
     st = int(p_st * n)
@@ -110,14 +103,14 @@ def split_data(x, y, p_st, p_en):
     train_set = (numpy.append(x[:st], x[end:], axis=0), numpy.append(y[:st], y[end:], axis=0))
     valid_set = (x[st:end], y[st:end])
 
-    def shared_dataset(data_xy, borrow=True):
-        data_x, data_y = data_xy
-        shared_x = theano.shared(numpy.asarray(data_x, dtype=theano.config.floatX), borrow=borrow)
-        shared_y = theano.shared(numpy.asarray(data_y, dtype='int32'), borrow=borrow)
-        return shared_x, shared_y
-
     valid_set_x, valid_set_y = shared_dataset(valid_set)
     train_set_x, train_set_y = shared_dataset(train_set)
-
     rval = [(train_set_x, train_set_y), (valid_set_x, valid_set_y)]
     return rval
+
+
+def shared_dataset(data_xy, borrow=True):
+    data_x, data_y = data_xy
+    shared_x = theano.shared(numpy.asarray(data_x, dtype=theano.config.floatX), borrow=borrow)
+    shared_y = theano.shared(numpy.asarray(data_y, dtype='int32'), borrow=borrow)
+    return shared_x, shared_y
