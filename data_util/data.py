@@ -99,14 +99,14 @@ def process_raw_data_acoustic():
 
 
 def process_raw_data_acous_lex():
-    acous_xs = read_acoustic_datas(r'../data/raw_data_all/acoustic_scale.txt')
-    lex_xs = read_lexical_datas(r'../data/raw_data_all/text.txt', compose_func=compose_func_avg)
+    acous_xs = read_acoustic_datas(r'../data/raw_data_balanced/acoustic_scale.txt')
+    lex_xs = read_lexical_datas(r'../data/raw_data_balanced/text.txt', compose_func=compose_func_avg)
     xs = numpy.hstack((acous_xs, lex_xs))
-    ys = read_labels(r'../data/raw_data_all/label.txt')
-    f = open(r'../data/data_all/acous_lex_avg.txt', 'w', encoding='utf-8')
+    ys = read_labels(r'../data/raw_data_balanced/label.txt')
+    f = open(r'../data/data_balanced/acous_lex_avg.txt', 'w', encoding='utf-8')
     for x, y in zip(xs, ys):
         f.write(Data(x, y).to_str() + '\n')
 
 
 if __name__ == '__main__':
-    process_raw_data_lexical()
+    process_raw_data_acous_lex()

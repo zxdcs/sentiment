@@ -6,6 +6,7 @@ __docformat__ = 'restructedtext en'
 
 import os
 import time
+import random
 
 import theano
 import numpy
@@ -200,9 +201,11 @@ def sgd_optimization(datasets, learning_rate=0.13, n_epochs=1000, batch_size=30)
     start_time = time.clock()
 
     epoch = 0
+    batches_idx = list(range(n_train_batches))
     while epoch < n_epochs:
         epoch += 1
-        for minibatch_index in range(n_train_batches):
+        random.shuffle(batches_idx)
+        for minibatch_index in batches_idx:
             minibatch_avg_cost = train_model(minibatch_index)
 
         # compute f-score on validation set
@@ -280,5 +283,5 @@ def corss_validation():
 
 if __name__ == '__main__':
     sgd_optimization(load_data(r'..\data\data_balanced\lexical_vec_avg.txt', sp_idx=3701),
-                     n_epochs=100, batch_size=80)
+                     n_epochs=1000, batch_size=100)
     # corss_validation()
