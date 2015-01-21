@@ -34,19 +34,15 @@ def test(file):
     print('fscore {0:f}  precision {1:f}  recall {2:f}'.format(fscore, precison, recall))
 
 
-def test_unbalance(file_b, file_u):
-    param = '-t 2 -c 1 -w0 0.12'
-    yb, xb = svm_read_problem(file_b)
-    total_len = len(yb)
-    sp = int(0.6 * total_len)
-    m = svm_train(yb[:sp], xb[:sp], param)
-
-    yu, xu = svm_read_problem(file_u)
-    total_len = len(yu)
-    sp = int(0.7 * total_len)
-    p_label, p_acc, p_val = svm_predict(yu[sp:], xu[sp:], m)
-    fs = f_score(yu[sp:], p_label)
-    return fs
+def test2(file):
+    param = '-t 2 -c 10 -w0 0.1'
+    y, x = svm_read_problem(file)
+    sp_idx = 23993
+    m = svm_train(y[:sp_idx], x[:sp_idx], param)
+    p_label, p_acc, p_val = svm_predict(y[sp_idx:], x[sp_idx:], m)
+    fscore, precison, recall = f_score(y[sp_idx:], p_label)
+    print(p_label)
+    print('fscore {0:f}  precision {1:f}  recall {2:f}'.format(fscore, precison, recall))
 
 
 def f_score(y_real, y_pred, target=1, label_num=2):
@@ -66,6 +62,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 if __name__ == '__main__':
     # score = cross_validation(r'..\data\data_balanced\lexical_vec_avg.txt')
-    test(r'..\data\data_balanced\acous_lex_avg.txt')
-    # score = test_unbalance(r'..\data\data_all\lexical_vec_avg.txt',
-    # r'..\data\data_balanced\lexical_vec_avg.txt')
+    # test(r'..\data\data_balanced\acous_lex_avg.txt')
+    test2(r'..\data\data_all\lexical_vec_avg.txt')

@@ -3,6 +3,7 @@ The binary DBN
 """
 import os
 import time
+import random
 
 import numpy
 import theano
@@ -320,38 +321,38 @@ def test_DBN(datasets, finetune_lr=0.1, pretraining_epochs=100,
 
     print('... finetuning the model')
 
-    best_fscore = 0
+    best_fscore = (0, 0, 0)
     start_time = time.clock()
 
     epoch = 0
+    batches_idx = list(range(n_train_batches))
     while epoch < training_epochs:
         epoch += 1
-        for minibatch_index in range(n_train_batches):
+        random.shuffle(batches_idx)
+        for minibatch_index in batches_idx:
             minibatch_avg_cost = train_fn(minibatch_index)
 
         # compute f-score on validation set
         y_preds = [validate_model(i) for i in range(n_valid_batches)]
         y_pred = [pij for pi in y_preds for pij in pi]
         y_real = valid_set_y.get_value(borrow=True)
+        print(y_pred)
         fscore, precison, recall = f_score(y_real, y_pred)
         print('epoch {0:d}, fscore {1:f}  precision {2:f}  recall {3:f}'.format(epoch, fscore, precison, recall))
 
         # if we got the best validation score until now
-        if fscore > best_fscore:
-            best_fscore = fscore
-            print('-----Best score: {0:f}-----'.format(best_fscore))
+        if fscore > best_fscore[0]:
+            best_fscore = (fscore, precison, recall)
+            print('-----Best score: {0:f}-----'.format(fscore))
 
     end_time = time.clock()
-    print('Optimization complete with best validation score of {0:.1f} %,'
-          .format(best_fscore * 100.))
-    print('The fine tuning code for file ' +
-          os.path.split(__file__)[1] +
-          ' ran for %.2fm' % ((end_time - start_time)
-                              / 60.))
+    print('Optimization complete with best validation score: fscore {0:f}  precision {1:f}  recall {2:f},'
+          .format(best_fscore[0], best_fscore[1], best_fscore[2]))
+    print('The fine tuning code for file ' + os.path.split(__file__)[1] +
+          ' ran for %.2fm' % ((end_time - start_time) / 60.))
 
 
 def f_score(y_real, y_pred, target=1, label_num=2):
-    print(y_pred)
     if len(y_real) != len(y_pred):
         raise TypeError(
             'y_real should have the same shape as y_pred',
@@ -367,6 +368,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_DBN(load_data(r'D:\workspace\sentiment\data_balanced\acoustic.txt'), pretraining_epochs=10,
-             training_epochs=100,
-             batch_size=20, k=1)
+    test_DBN(load_data(r'..\data\data_balanced\acous_lex_avg.txt', sp_idx=3701), pretraining_epochs=50,
+             training_epochs=500, batch_size=50, k=1)
