@@ -288,7 +288,7 @@ def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
     sda = SDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[750, 500, 250],
+        hidden_layers_sizes=[900, 600, 300],
         n_outs=2
     )
     #########################
@@ -322,6 +322,11 @@ def test_SdA(datasets, finetune_lr=0.1, pretraining_epochs=15,
     ########################
     # FINETUNING THE MODEL #
     ########################
+
+    # imbalanced data
+    penalty = [0.2, 1]
+    penalty_sh = theano.shared(numpy.asarray([penalty] * batch_size, dtype=theano.config.floatX), borrow=True)
+    sda.finetune_cost = sda.logLayer.negative_log_likelihood(sda.y, penalty_sh)
 
     # get the training, validation and testing function for the model
     print('... getting the finetuning functions')
@@ -380,5 +385,7 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_SdA(load_data(r'..\data\data_balanced\acous_lex_avg.txt', sp_idx=3701),
+    # test_SdA(load_data(r'..\data\data_balanced\acous_lex_avg.txt', sp_idx=3701),
+    #          pretraining_epochs=50, training_epochs=500, batch_size=50)
+    test_SdA(load_data(r'..\data\data_all\acous_lex_avg.txt', sp_idx=23993),
              pretraining_epochs=50, training_epochs=500, batch_size=50)

@@ -368,5 +368,5 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    test_DBN(load_data(r'..\data\data_balanced\acous_lex_avg.txt', sp_idx=3701), pretraining_epochs=50,
-             training_epochs=500, batch_size=50, k=1)
+    test_DBN(load_data(r'..\data\data_balanced\acoustic.txt', sp_idx=3701), pretraining_epochs=50,
+             training_epochs=300, batch_size=50, k=1)
