@@ -35,7 +35,7 @@ def test(file):
 
 
 def test2(file):
-    param = '-t 2 -c 10 -w0 0.1'
+    param = '-t 2 -c 10 -w0 0.2'
     y, x = svm_read_problem(file)
     sp_idx = 23993
     m = svm_train(y[:sp_idx], x[:sp_idx], param)

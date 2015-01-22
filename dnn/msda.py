@@ -197,7 +197,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     sda = MMSDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[[750, 500, 250], [150, 100, 50], [200]],
+        hidden_layers_sizes=[[800, 600, 400], [400, 400, 400], [400]],
         n_outs=2
     )
 
@@ -228,6 +228,11 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     ########################
     # FINETUNING THE MODEL #
     ########################
+
+    # imbalanced data
+    penalty = [0.2, 1]
+    penalty_sh = theano.shared(numpy.asarray([penalty] * batch_size, dtype=theano.config.floatX), borrow=True)
+    sda.finetune_cost = sda.logLayer.negative_log_likelihood(sda.y, penalty_sh)
 
     # get the training, validation and testing function for the model
     print('... getting the finetuning functions')
@@ -286,6 +291,9 @@ def f_score(y_real, y_pred, target=1, label_num=2):
 
 
 if __name__ == '__main__':
-    acoustic_data = load_data(r'..\data\data_balanced\acoustic.txt')
-    text_data = load_data(r'..\data\data_balanced\lexical_vec_avg.txt')
+    # acoustic_data = load_data(r'..\data\data_balanced\acoustic.txt',sp_idx=3701)
+    # text_data = load_data(r'..\data\data_balanced\lexical_vec_avg.txt',sp_idx=3701)
+    # test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500, batch_size=50)
+    acoustic_data = load_data(r'..\data\data_all\acoustic.txt', sp_idx=23993)
+    text_data = load_data(r'..\data\data_all\lexical_vec_avg.txt', sp_idx=23993)
     test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500, batch_size=50)
