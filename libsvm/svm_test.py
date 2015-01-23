@@ -1,8 +1,7 @@
 __author__ = 'zxd'
 
-import numpy
-
 from libsvm.svmutil import *
+from exp.evaluation import *
 
 
 def cross_validation(file, k=10):
@@ -45,22 +44,7 @@ def test2(file):
     print('fscore {0:f}  precision {1:f}  recall {2:f}'.format(fscore, precison, recall))
 
 
-def f_score(y_real, y_pred, target=1, label_num=2):
-    if len(y_real) != len(y_pred):
-        raise TypeError(
-            'y_real should have the same shape as y_pred',
-            ('y_real ', len(y_real), 'y_pred', len(y_pred))
-        )
-    count = numpy.zeros([label_num, label_num])
-    for real, pred in zip(y_real, y_pred):
-        count[real][pred] += 1
-    precison = count[target][target] / numpy.sum(count, axis=0)[target]
-    recall = count[target][target] / numpy.sum(count, axis=1)[target]
-    fscore = 2 * precison * recall / (precison + recall)
-    return fscore, precison, recall
-
-
 if __name__ == '__main__':
     # score = cross_validation(r'..\data\data_balanced\lexical_vec_avg.txt')
-    # test(r'..\data\data_balanced\acous_lex_avg.txt')
-    test2(r'..\data\data_all\lexical_vec_avg.txt')
+    test(r'..\data\data_balanced\acoustic.txt')
+    # test2(r'..\data\data_all\lexical_vec_avg.txt')

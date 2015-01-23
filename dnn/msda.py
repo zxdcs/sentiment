@@ -7,7 +7,6 @@ import os
 import time
 import random
 
-import numpy
 import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
@@ -16,6 +15,7 @@ from dnn.logistic_sgd import LogisticRegression
 from dnn.data_reader import load_data
 from dnn.mlp import HiddenLayer
 from dnn.da import DA
+from exp.evaluation import *
 
 
 class MMSDA(object):
@@ -273,21 +273,6 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     print('The training code for file ' +
           os.path.split(__file__)[1] +
           ' ran for %.2fm' % ((end_time - start_time) / 60.))
-
-
-def f_score(y_real, y_pred, target=1, label_num=2):
-    if len(y_real) != len(y_pred):
-        raise TypeError(
-            'y_real should have the same shape as y_pred',
-            ('y_real ', len(y_real), 'y_pred', len(y_pred))
-        )
-    count = numpy.zeros([label_num, label_num])
-    for real, pred in zip(y_real, y_pred):
-        count[real][pred] += 1
-    precison = count[target][target] / numpy.sum(count, axis=0)[target]
-    recall = count[target][target] / numpy.sum(count, axis=1)[target]
-    fscore = 2 * precison * recall / (precison + recall)
-    return fscore, precison, recall
 
 
 if __name__ == '__main__':
