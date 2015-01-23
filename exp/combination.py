@@ -6,6 +6,7 @@ from exp.evaluation import *
 
 def svm_classify(file, sp_idx=3701, param='-t 2 -c 10'):
     y, x = svm_read_problem(file)
+    print(x)
     m = svm_train(y[:sp_idx], x[:sp_idx], param)
     p_label, p_acc, p_val = svm_predict(y[sp_idx:], x[sp_idx:], m)
     p_val_array = numpy.asarray([v[0] for v in p_val])
