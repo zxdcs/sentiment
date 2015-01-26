@@ -18,7 +18,7 @@ from dnn.da import DA
 from exp.evaluation import *
 
 
-class MMSDA(object):
+class MSDA(object):
     def __init__(
             self,
             numpy_rng,
@@ -165,9 +165,22 @@ class MMSDA(object):
 
         return train_fn, valid_score_i
 
+    def build_seq_output_functions(self, datasets_modals):
+        train_givens = [(self.x[k], datasets_modals[k][0][0]) for k in range(self.n_modals - 1)]
+        train_fn = theano.function(
+            [], [self.sigmoid_layers[-1][-1].output, self.y_pred], givens=train_givens,
+        )
+
+        valid_givens = [(self.x[k], datasets_modals[k][1][0]) for k in range(self.n_modals - 1)]
+        valid_fn = theano.function(
+            [], [self.sigmoid_layers[-1][-1].output, self.y_pred], givens=valid_givens,
+        )
+
+        return train_fn, valid_fn
+
 
 def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
-               pretrain_lr=0.001, training_epochs=1000, batch_size=1):
+               pretrain_lr=0.001, training_epochs=1000, batch_size=1, seq_output=False):
     """
     Demonstrates how to train and test a stochastic denoising autoencoder.
 
@@ -194,7 +207,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
 
     # construct the stacked denoising autoencoder class
     dim = [int(dataset[0][0].get_value(borrow=True).shape[1]) for dataset in datasets_modals]
-    sda = MMSDA(
+    msda = MSDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
         hidden_layers_sizes=[[800, 600, 400], [400, 400, 400], [400]],
@@ -205,8 +218,8 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     # PRETRAINING THE MODEL #
     #########################
     print('... getting the pretraining functions')
-    pretraining_fns = sda.pretraining_functions(datasets_modals=datasets_modals,
-                                                batch_size=batch_size)
+    pretraining_fns = msda.pretraining_functions(datasets_modals=datasets_modals,
+                                                 batch_size=batch_size)
     print('... pre-training the model')
     start_time = time.clock()
     # Pre-train layer-wise
@@ -232,15 +245,17 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     # imbalanced data
     penalty = [0.2, 1]
     penalty_sh = theano.shared(numpy.asarray([penalty] * batch_size, dtype=theano.config.floatX), borrow=True)
-    sda.finetune_cost = sda.logLayer.negative_log_likelihood(sda.y, penalty_sh)
+    msda.finetune_cost = msda.logLayer.negative_log_likelihood(msda.y, penalty_sh)
 
     # get the training, validation and testing function for the model
     print('... getting the finetuning functions')
-    train_fn, validate_model = sda.build_finetune_functions(
+    train_fn, validate_model = msda.build_finetune_functions(
         datasets_modals=datasets_modals,
         batch_size=batch_size,
         learning_rate=finetune_lr
     )
+    if seq_output:
+        seq_output_train_fn, seq_output_valid_fn = msda.build_seq_output_functions(datasets_modals)
 
     print('... finetunning the model')
     best_fscore = (0, 0, 0)
@@ -266,6 +281,9 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
         if fscore > best_fscore[0]:
             best_fscore = (fscore, precison, recall)
             print('-----Best score: {0:f}-----'.format(fscore))
+            if seq_output:
+                seq_output_train = seq_output_train_fn()
+                seq_output_valid = seq_output_valid_fn()
 
     end_time = time.clock()
     print('Optimization complete with best validation score: fscore {0:f}  precision {1:f}  recall {2:f},'
@@ -273,12 +291,27 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     print('The training code for file ' +
           os.path.split(__file__)[1] +
           ' ran for %.2fm' % ((end_time - start_time) / 60.))
+    if seq_output:
+        print('writing sequence output')
+        seq_output_file(r'..\data\data_seq\seq_train_raw.txt', seq_output_train,
+                        datasets_modals[0][0][1].get_value(borrow=True))
+        seq_output_file(r'..\data\data_seq\seq_test_raw.txt', seq_output_valid,
+                        datasets_modals[0][1][1].get_value(borrow=True))
+
+
+def seq_output_file(file, output_data, real_labels):
+    f = open(file, 'w', encoding='utf-8')
+    for feature, predict, real in zip(output_data[0], output_data[1], real_labels):
+        f.write(' '.join(map(lambda i: '{0:.0f}'.format(i), feature)))
+        f.write(' {0:.0f} {1:.0f}\n'.format(predict, real))
+    f.close()
 
 
 if __name__ == '__main__':
-    # acoustic_data = load_data(r'..\data\data_balanced\acoustic.txt',sp_idx=3701)
-    # text_data = load_data(r'..\data\data_balanced\lexical_vec_avg.txt',sp_idx=3701)
+    # acoustic_data = load_data(r'..\data\data_balanced\acoustic.txt', sp_idx=3701)
+    # text_data = load_data(r'..\data\data_balanced\lexical_vec_avg.txt', sp_idx=3701)
     # test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500, batch_size=50)
     acoustic_data = load_data(r'..\data\data_all\acoustic.txt', sp_idx=23993)
     text_data = load_data(r'..\data\data_all\lexical_vec_avg.txt', sp_idx=23993)
-    test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500, batch_size=50)
+    test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=1000,
+               batch_size=50, seq_output=True)
