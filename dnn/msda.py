@@ -210,7 +210,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     msda = MSDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[[800, 600, 400], [400, 400, 400], [400]],
+        hidden_layers_sizes=[[800, 600], [400, 400], [700, 400]],
         n_outs=2
     )
 
@@ -223,7 +223,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     print('... pre-training the model')
     start_time = time.clock()
     # Pre-train layer-wise
-    corruption_levels = [.5, .5, .5, .5, .5, .5, .5]
+    corruption_levels = [.2, .2, .2, .2, .2, .2]
     for i, pt_fn in enumerate(pretraining_fns):
         # go through pretraining epochs
         for epoch in range(pretraining_epochs):
@@ -313,5 +313,5 @@ if __name__ == '__main__':
     # test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500, batch_size=50)
     acoustic_data = load_data(r'..\data\data_all\acoustic.txt', sp_idx=23993)
     text_data = load_data(r'..\data\data_all\lexical_vec_avg.txt', sp_idx=23993)
-    test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=1000,
-               batch_size=50, seq_output=True)
+    test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500,
+               batch_size=50, seq_output=False)

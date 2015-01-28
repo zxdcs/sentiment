@@ -1,5 +1,7 @@
 __author__ = 'zxd'
 
+from exp.evaluation import f_score
+
 
 def insert_space(file_list, data_list):
     assert len(file_list) == len(data_list)
@@ -12,13 +14,13 @@ def insert_space(file_list, data_list):
 
 
 def insert_space_for_data():
-    f = open(r'..\data\raw_data_balanced\filelist.txt')
+    f = open(r'..\data\raw_data_all\filelist.txt')
     file_list = f.readlines()
     for i in range(len(file_list)):
         file_list[i] = file_list[i][:file_list[i].index('_')]
     f.close()
 
-    sp_idx = 3701
+    sp_idx = 23993
     f = open(r'..\data\data_seq\seq_train_raw.txt')
     data_list = f.readlines()
     f.close()
@@ -36,5 +38,20 @@ def insert_space_for_data():
     f.close()
 
 
+def test_score(file):
+    f = open(file)
+    real = []
+    pred = []
+    for line in f:
+        line = line.rstrip('\n')
+        if line:
+            tokens = line.split()
+            real.append(int(tokens[-2]))
+            pred.append(int(tokens[-1]))
+    fscore, precison, recall = f_score(real, pred)
+    print('fscore {0:f}  precision {1:f}  recall {2:f}'.format(fscore, precison, recall))
+
+
 if __name__ == '__main__':
-    insert_space_for_data()
+    # insert_space_for_data()
+    test_score(r'..\data\data_seq\result.txt')
