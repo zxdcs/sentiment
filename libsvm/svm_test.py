@@ -46,5 +46,5 @@ def test2(file):
 
 if __name__ == '__main__':
     # score = cross_validation(r'..\data\data_balanced\lexical_vec_avg.txt')
-    test(r'..\data\data_balanced\acoustic.txt')
-    # test2(r'..\data\data_all\lexical_vec_avg.txt')
+    # test(r'..\data\data_balanced\acoustic.txt')
+    test2(r'..\data\data_all\acous_lex_avg.txt')

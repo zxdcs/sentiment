@@ -15,7 +15,7 @@ class Data(object):
         self.y = y
 
     def to_str(self):
-        output = str(self.y)
+        output = str(int(self.y))
         for idx, val in enumerate(self.x):
             if val:
                 output += ' {0:d}:{1:g}'.format(idx + 1, val)

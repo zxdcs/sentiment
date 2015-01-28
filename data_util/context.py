@@ -39,6 +39,7 @@ def context_feature(in_file, out_file):
     xc = numpy.ones((x.shape[0], x.shape[1] * 3)) / 2
     uid = read_utterance_id(r'..\data\raw_data_all\filelist.txt')
     for i in range(len(x)):
+        array_copy(x, xc, i, i, 0)
         l_idx, ls_idx = find_context(uid, i)
         if l_idx != -1:
             array_copy(x, xc, l_idx, i, x.shape[1])
@@ -50,4 +51,4 @@ def context_feature(in_file, out_file):
 
 
 if __name__ == '__main__':
-    context_feature(r'..\data\data_all\lexical_vec_avg.txt', r'..\data\data_context\lexical_vec_avg.txt')
+    context_feature(r'..\data\data_all\acoustic.txt', r'..\data\data_context\acoustic.txt')

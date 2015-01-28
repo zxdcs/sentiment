@@ -210,7 +210,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     msda = MSDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[[800, 600], [400, 400], [700, 400]],
+        hidden_layers_sizes=[[600, 200], [150, 100], [200, 100]],
         n_outs=2
     )
 

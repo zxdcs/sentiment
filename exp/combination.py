@@ -10,6 +10,8 @@ def svm_classify(file, sp_idx=3701, param='-t 2 -c 10'):
     p_label, p_acc, p_val = svm_predict(y[sp_idx:], x[sp_idx:], m)
     p_val_array = numpy.asarray([v[0] for v in p_val])
     p_val_array /= numpy.max(numpy.fabs(p_val_array))
+    if (p_label[0] == 0 and p_val_array[0] > 0) or (p_label[0] == 1 and p_val_array[0] < 0):
+        p_val_array = -p_val_array
     return p_val_array
 
 
