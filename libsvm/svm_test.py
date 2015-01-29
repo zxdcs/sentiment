@@ -34,7 +34,7 @@ def test(file):
 
 
 def test2(file):
-    param = '-t 2 -c 10 -w0 0.2'
+    param = '-t 2 -c 25 -w0 0.2'
     y, x = svm_read_problem(file)
     sp_idx = 23993
     m = svm_train(y[:sp_idx], x[:sp_idx], param)
@@ -47,4 +47,4 @@ def test2(file):
 if __name__ == '__main__':
     # score = cross_validation(r'..\data\data_balanced\lexical_vec_avg.txt')
     # test(r'..\data\data_balanced\acoustic.txt')
-    test2(r'..\data\data_all\acous_lex_avg.txt')
+    test2(r'..\data\data_all\lexical_vec_avg.txt')

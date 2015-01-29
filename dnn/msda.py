@@ -210,7 +210,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     msda = MSDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[[600, 200], [150, 100], [200, 100]],
+        hidden_layers_sizes=[[1800, 600], [450, 300], [600, 300]],
         n_outs=2
     )
 
@@ -302,7 +302,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
 def seq_output_file(file, output_data, real_labels):
     f = open(file, 'w', encoding='utf-8')
     for feature, predict, real in zip(output_data[0], output_data[1], real_labels):
-        f.write(' '.join(map(lambda i: '{0:.0f}'.format(i*10), feature)))
+        f.write(' '.join(map(lambda i: '{0:.0f}'.format(i * 10), feature)))
         f.write(' {0:.0f} {1:.0f}\n'.format(predict, real))
     f.close()
 
@@ -310,8 +310,8 @@ def seq_output_file(file, output_data, real_labels):
 if __name__ == '__main__':
     # acoustic_data = load_data(r'..\data\data_balanced\acoustic.txt', sp_idx=3701)
     # text_data = load_data(r'..\data\data_balanced\lexical_vec_avg.txt', sp_idx=3701)
-    # test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500, batch_size=50)
-    acoustic_data = load_data(r'..\data\data_all\acoustic.txt', sp_idx=23993)
-    text_data = load_data(r'..\data\data_all\lexical_vec_avg.txt', sp_idx=23993)
+    # test_mmsda([acoustic_data, text_data], pretraining_epochs=1, training_epochs=3, batch_size=50, seq_output=True)
+    acoustic_data = load_data(r'..\data\data_context\acoustic.txt', sp_idx=23993)
+    text_data = load_data(r'..\data\data_context\lexical_vec_avg.txt', sp_idx=23993)
     test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500,
-               batch_size=50, seq_output=True)
+               batch_size=50, seq_output=False)
