@@ -22,8 +22,8 @@ def best_trust(p_label, p_val_list, ids, pc, nc):
             p_id_val.append(id_val[i])
         else:
             n_id_val.append(id_val[i])
-    p_id_val.sort(key=lambda x: x[1], reverse=True)
-    n_id_val.sort(key=lambda x: -x[1], reverse=True)
+    p_id_val.sort(key=lambda x: math.fabs(x[1]), reverse=True)
+    n_id_val.sort(key=lambda x: math.fabs(-x[1]), reverse=True)
     return p_id_val[:pc] + n_id_val[:nc]
 
 

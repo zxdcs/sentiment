@@ -302,7 +302,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
 def seq_output_file(file, output_data, real_labels):
     f = open(file, 'w', encoding='utf-8')
     for feature, predict, real in zip(output_data[0], output_data[1], real_labels):
-        f.write(' '.join(map(lambda i: '{0:.0f}'.format(i), feature)))
+        f.write(' '.join(map(lambda i: '{0:.0f}'.format(i*10), feature)))
         f.write(' {0:.0f} {1:.0f}\n'.format(predict, real))
     f.close()
 
@@ -314,4 +314,4 @@ if __name__ == '__main__':
     acoustic_data = load_data(r'..\data\data_all\acoustic.txt', sp_idx=23993)
     text_data = load_data(r'..\data\data_all\lexical_vec_avg.txt', sp_idx=23993)
     test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500,
-               batch_size=50, seq_output=False)
+               batch_size=50, seq_output=True)
