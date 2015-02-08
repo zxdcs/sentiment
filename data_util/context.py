@@ -50,5 +50,19 @@ def context_feature(in_file, out_file):
         f.write(Data(ix, iy).to_str() + '\n')
 
 
+def context_feature_only_role(in_file, out_file):
+    x, y = read_data(in_file)
+    xc = numpy.ones((x.shape[0], x.shape[1] * 2)) / 2
+    uid = read_utterance_id(r'..\data\raw_data_all\filelist.txt')
+    for i in range(len(x)):
+        array_copy(x, xc, i, i, 0)
+        l_idx, ls_idx = find_context(uid, i)
+        if ls_idx != -1:
+            array_copy(x, xc, ls_idx, i, x.shape[1])
+    f = open(out_file, 'w', encoding='utf-8')
+    for ix, iy in zip(xc, y):
+        f.write(Data(ix, iy).to_str() + '\n')
+
+
 if __name__ == '__main__':
-    context_feature(r'..\data\data_all\acoustic.txt', r'..\data\data_context\acoustic.txt')
+    context_feature_only_role(r'..\data\data_all\acoustic.txt', r'..\data\data_context\acoustic.txt')

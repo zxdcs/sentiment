@@ -210,7 +210,7 @@ def test_mmsda(datasets_modals, finetune_lr=0.1, pretraining_epochs=15,
     msda = MSDA(
         numpy_rng=numpy_rng,
         n_ins=dim,
-        hidden_layers_sizes=[[1800, 600], [450, 300], [600, 300]],
+        hidden_layers_sizes=[[1500, 1000], [1000, 1000], [1500, 1000]],
         n_outs=2
     )
 
@@ -313,5 +313,5 @@ if __name__ == '__main__':
     # test_mmsda([acoustic_data, text_data], pretraining_epochs=1, training_epochs=3, batch_size=50, seq_output=True)
     acoustic_data = load_data(r'..\data\data_context\acoustic.txt', sp_idx=23993)
     text_data = load_data(r'..\data\data_context\lexical_vec_avg.txt', sp_idx=23993)
-    test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=500,
+    test_mmsda([acoustic_data, text_data], pretraining_epochs=50, training_epochs=400,
                batch_size=50, seq_output=False)
